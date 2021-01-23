@@ -19,5 +19,348 @@ Assignment 01
 Student Name: Ngoc Son (Jeff) Nguyen  
 
 
-# **Question 1**  
+# **Question 1**
+  
+To estimate the $\beta$ coefficients of the single stock (AAPL) CAPM portfolio, we follow these steps:
+  
+1. Download data from Yahoo Finance. The following tickers are downloaded: AAPL, GSPC (representing the S&P 500) and TNX (representing the US Treasury Bills.)
+  
+2. Calculate the following statistics of the portfolio using adjusted monthly closing price (converted from daily): monthly returns (AAPL, GSPC and TNX), mean returns.
+  
+3. The expected risk premium of the portfolio based on the CAPM model is given as:  
+  
+\begin{equation}
+  \begin{aligned}
+    E[R_a - R_f] =& \beta * (R_m - R_f)  \\
+    \text{or}  \\
+    R_a =& R_f + \beta * (R_m - R_f)  \\
+    R_a - R_f =& \alpha_{Jensen} + \beta * (R_m - R_f)  \\
+    \text{or}  \\
+    Y =& \alpha_{Jensen} + \beta * X + epsilon \\
+    \text{with}  \\
+    Y =& R_a - R_f  \\
+    X =& R_m - R_f  \\
+    \beta =& \text{Market risk or systematic risk}  \\
+    \epsilon =& \text{stochastic error term} \\
+  \end{aligned}
+\end{equation}
 
+
+```{r}
+library(quantmod)
+
+# Set start date and end date of data
+start_date <- "2018-01-01"
+end_date <- "2020-12-31"
+
+# Get data
+getSymbols("AAPL", src = "yahoo", from = start_date, to = end_date)
+getSymbols("^GSPC", src = "yahoo", , from = start_date, to = end_date) # S&P 500
+getSymbols("^TNX", src = "yahoo", from = start_date, to = end_date) # TNX (10-year T-bill)
+
+# Adjusted Prices
+adjAAPL <- AAPL$AAPL.Adjusted
+
+# Get adjusted returns data
+rAAPL <- diff(log(to.monthly(AAPL)$AAPL.Adjusted))
+rGSPC <- diff(log(to.monthly(GSPC)$GSPC.Adjusted))
+rTNX <- (to.monthly(TNX)$TNX.Adjusted) / 1200 # Using monthly rate
+
+# Calculate Portfolio Risk Premium
+Y <- na.omit(rAAPL - rTNX)
+names(Y)[1] <- "Portfolio Risk Premium"  # Rename column
+Y_bar <- mean(Y)
+Y_bar
+
+# Calculate Market Risk Premium
+X <- na.omit(rGSPC - rTNX)
+X_bar <- mean(X)
+names(X)[1] <- "Market Risk Premium"  # Rename column
+
+# Create a data frame of X, Y
+data1 <- data.frame(X, Y)
+```
+  
+We can observe the relationship between the market (S&P 500) risk premium and the portfolio (AAPL) risk premium as follow:
+  
+```{r}
+plot(data1, col='red', main="Relationship Between Market & Portfolio Risk Premium", pch=20, cex=1)
+
+# Add fit lines
+abline(lm(Y~X), col="blue")  # Regression line Y ~ X
+lines(lowess(X,Y), col="black", lty=2)  # Lowess line (X,Y)
+
+legend("bottomleft",c("Linear fit line", "Lowess line"), cex=.8, col=c("blue", "black"), lty=1:2)
+```
+
+## a. Relationship of AAPL with market
+  
+Upon inspection, we observe a strong positive correlation between the AAPL portfolio and the market. Therefore, we can conclude that AAPL follow the market relatively closely, but not necessarily linearly.
+
+## b. Hypothesis testing
+  
+Next, we attempts to fit an equation of a line: $Y = \alpha_{Jensen} + \beta * X + \epsilon$  
+
+Hypothesis for regression:  
+\begin{equation}
+  \begin{aligned}
+    H_0: \alpha =& .05  \\
+    H_a: \alpha \neq& .05  \\
+    \text{and}  \\
+    H_0: \beta =& .05  \\
+    H_a: \beta \neq& .05  \\
+  \end{aligned}
+\end{equation}
+
+```{r}
+fit1 <- lm(Y~X, data=data1)
+summary(fit1)
+```
+   
+The estimated equation is $Y = .02455 - 1.27630*X$, where the $p_{value}$ for the intercept $.0479 < .05$.  
+Therefore, we reject the null hypothesis at 95% confidence level that the intercept $\alpha_{Jensen}$ statistically is no different from .05. Thus, we reject the null hypothesis $H_0: \alpha = .05$ and accept the null hypothesis $H_a: \alpha \neq .05$.    
+The coefficient $\beta = 1.27630$ represents the increase in portfolio risk premium relative to increase in the market portfolio risk premium. The $p_{value}$ for $\beta$ is $1.73e-06 < .05$, implying that the coefficient $\beta$ statistically is significant at 95% or more, and we reject the null hypothesis $H_0: \beta = .05$ and accept the alternative hypothesis $H_a: \beta \neq .05$.  
+
+Goodness of Fit:  
+Through inspection of the linear regression result, we observe the $R^2 = .5049$ value to not be close to 1 at all. $R^2 = .5049$ implies that $50.49%$ of the variations in the portfolio risk premium is explained by the market risk premium.
+  
+Standard Error of Regression:  
+We can see that the Standard Error of Regression is $S.E. = .0702$.  
+From this, we can calculate the forecasting efficiency statistic to be:  
+\begin{equation}
+  \begin{aligned}
+    \frac{S.E.}{\overline Y} =& \frac{.0702}{`r Y_bar`}   \\
+                             =& `r round(.0702*100/Y_bar,2)`\% > 10\%  \\
+  \end{aligned}
+\end{equation}
+This statistic implies that the linear model is not a good forecasting model.  
+
+Thus, upon exploring the goodness of fit and standard error of regression, we confirm our initial observation that the portfolio risk premium and the market portfolio risk premium has a weak linear relationship.  
+
+## c. Ex-post forecast
+  
+Doing the ex-post forecast:
+```{r}
+pred_expost <- predict(fit1, data1)
+```  
+
+We can see the side-by-side comparison of actual vs. ex-post forecast:
+  
+```{r}
+compare_ex_post <- data.frame(rAAPL[-1,], pred_expost)
+compare_ex_post
+```
+  
+We note that the forecast is not exactly accurate.
+
+## d. Ex-ante forecast.
+  
+```{r}
+library(forecast)
+
+#ex_ante_forecast <- forecast(fit1, newdata=data.frame(x=c(.010, .015, .015), se.fit=TRUE))
+```
+  
+# **Question 2**
+  
+```{r}
+# Get data for JPM, FB and the 10 year T-bill (TNX)
+getSymbols("TSLA", src = "yahoo", from = start_date, to = end_date)
+
+# Get adjusted returns data for 01/2014
+rTSLA <- diff(log(to.monthly(TSLA)$TSLA.Adjusted))
+
+# Calculate statistics
+mean_rAAPL <- mean(rAAPL, na.rm = TRUE)
+mean_rTSLA <- mean(rTSLA, na.rm = TRUE)
+mean_rTNX <- mean(rTNX, na.rm = TRUE)
+
+sd_rAAPL <- sd(rAAPL, na.rm = TRUE)
+sd_rTSLA <- sd(rTSLA, na.rm = TRUE)
+```
+
+## a. Coefficient of variation
+For AAPL:
+```{r}
+# Coefficient of variation of Adjusted Returns of AAPL
+cv_rAAPL <- sd_rAAPL / mean_rAAPL
+```
+\begin{equation}
+  \begin{aligned}
+    CV_{AAPL} =& \frac{\sigma}{\mu}  \\
+              =& \frac{`r sd_rAAPL`}{`r mean_rAAPL`}  \\
+              =& `r cv_rAAPL`  \\
+    \text {where} \\
+    \sigma =& \text {Standard deviation of Adjusted Returns} \\
+    \mu =& \text {Mean of Adjusted Returns} \\
+  \end{aligned}
+\end{equation}
+
+For TSLA:
+```{r}
+# Coefficient of variation of Adjusted Returns of TSLA
+cv_rTSLA <- sd_rTSLA / mean_rTSLA
+```
+\begin{equation}
+  \begin{aligned}
+    CV_{TSLA} =& \frac{\sigma}{\mu}  \\
+              =& \frac{`r sd_rTSLA`}{`r mean_rTSLA`}  \\
+              =& `r cv_rTSLA`  \\
+    \text {where} \\
+    \sigma =& \text {Standard deviation of Adjusted Returns} \\
+    \mu =& \text {Mean of Adjusted Returns} \\
+  \end{aligned}
+\end{equation}
+  
+## b. Sharpe Ratio
+In this case, each portfolio carry 100% of AAPL and of TSLA so weighting is 100% of each stock for each portfolio.
+
+For AAPL:
+```{r}
+# Sharpe Ratio of a 100% AAPL portfolio
+sharpe_rAAPL <- (mean_rAAPL - mean_rTNX) / sd_rAAPL 
+```
+\begin{equation}
+  \begin{aligned}
+    {Sharpe}_{AAPL} =& \frac{E(r_p) - r_f}{\sigma_p}  \\
+                    =& \frac{`r mean_rAAPL` - `r mean_rTNX`}{`r sd_rAAPL`}  \\
+                    =& `r sharpe_rAAPL` \\
+    \text {where} \\
+    r_p =& \text {Mean of Adjusted Returns} \\
+    r_f =& \text {Risk free rate} \\
+    \sigma_p =& \text {Standard deviation of adjusted returns}
+  \end{aligned}
+\end{equation}
+  
+For TSLA:
+```{r}
+# Sharpe Ratio of a 100% TSLA portfolio
+sharpe_rTSLA <- (mean_rTSLA - mean_rTNX) / sd_rTSLA 
+```
+\begin{equation}
+  \begin{aligned}
+    {Sharpe}_{TSLA} =& \frac{E(r_p) - r_f}{\sigma_p}  \\
+                    =& \frac{`r mean_rTSLA` - `r mean_rTNX`}{`r sd_rTSLA`}  \\
+                    =& `r sharpe_rTSLA` \\
+    \text {where} \\
+    r_p =& \text {Mean of Adjusted Returns} \\
+    r_f =& \text {Risk free rate} \\
+    \sigma_p =& \text {Standard deviation of adjusted returns}
+  \end{aligned}
+\end{equation}
+
+## c. Treynor Ratio
+  
+For AAPL:
+```{r}
+# Treynor Ratio of a 100% AAPL portfolio
+beta_AAPL <- 1.28
+treynor_rAAPL <- (mean_rAAPL - mean_rTNX) / beta_AAPL
+```
+  
+\begin{equation}
+  \begin{aligned}
+    {Treynor}_{AAPL} =& \frac{r_p - r_f}{\beta_p}  \\
+                     =& \frac{`r mean_rAAPL` - `r mean_rTNX`}{`r beta_AAPL`}
+                     =& `r treynor_rAAPL`
+  \end{aligned}
+\end{equation}
+
+For TSLA:
+```{r}
+# Treynor Ratio of a 100% TSLA portfolio
+beta_TSLA <- 2.19
+treynor_rTSLA <- (mean_rTSLA - mean_rTNX) / beta_TSLA
+```
+  
+\begin{equation}
+  \begin{aligned}
+    {Treynor}_{AAPL} =& \frac{r_p - r_f}{\beta_p}  \\
+                     =& \frac{`r mean_rTSLA` - `r mean_rTNX`}{`r beta_TSLA`}
+                     =& `r treynor_rTSLA`
+  \end{aligned}
+\end{equation}
+
+## d. Sortino Ratio
+  
+For the purpose of calculating the Sortino ratio, we'll use the mean of Treasury bill daily risk-free rate for the period as the Minimum Acceptable Returns (MAR).
+
+For AAPL:
+```{r}
+# Calculating downside deviation using lower partial moment of order 2
+# Assuming the 10 year T-bill returns as minimum acceptable returns MAR
+mar <- mean_rTNX
+
+# Deviation from MAR, this is a data frame, remove NA values
+dev_rAAPL_mar <- na.omit(rAAPL - mar)
+
+# Get the subset of negative values
+devNegative_rAAPL_mar <- subset(dev_rAAPL_mar, dev_rAAPL_mar < 0)
+
+# Calculate the Lower Partial Moment
+downsideDev_AAPL <- var(devNegative_rAAPL_mar)
+
+# Downside deviation
+sd_downsideDev_AAPL <- sqrt(downsideDev_AAPL)
+
+# Sortino Ratio
+sortino_rAAPL <- (mean_rAAPL - mean_rTNX) / sd_downsideDev_AAPL
+```
+\begin{equation}
+  \begin{aligned}
+    {Sortino}_{AAPL} =& \frac{r_p - r_f}{\sigma_{downside}}  \\
+                     =& \frac{`r mean_rAAPL` - `r mean_rTNX`}{`r sd_downsideDev_AAPL`}  \\
+                     =& `r sortino_rAAPL`  \\
+    \text {where} \\
+    r_p =& \text {Mean of Adjusted Returns} \\
+    r_f =& \text {Risk free rate} \\
+    \sigma_{downside} =& \text {Standard deviation of the downside}
+  \end{aligned}
+\end{equation}
+  
+For TSLA:
+```{r}
+# Calculating downside deviation using lower partial moment of order 2
+# Assuming the 10 year T-bill returns as minimum acceptable returns MAR
+mar <- mean_rTNX
+
+# Deviation from MAR, this is a data frame, remove NA values
+dev_rTSLA_mar <- na.omit(rTSLA - mar)
+
+# Get the subset of negative values
+devNegative_rTSLA_mar <- subset(dev_rTSLA_mar, dev_rTSLA_mar < 0)
+
+# Calculate the Lower Partial Moment
+downsideDev_TSLA <- var(devNegative_rTSLA_mar)
+
+# Downside deviation
+sd_downsideDev_TSLA <- sqrt(downsideDev_TSLA)
+
+# Sortino Ratio
+sortino_rTSLA <- (mean_rTSLA - mean_rTNX) / sd_downsideDev_TSLA
+```
+\begin{equation}
+  \begin{aligned}
+    {Sortino}_{TSLA} =& \frac{r_p - r_f}{\sigma_{downside}}  \\
+                     =& \frac{`r mean_rTSLA` - `r mean_rTNX`}{`r sd_downsideDev_TSLA`}  \\
+                     =& `r sortino_rTSLA`  \\
+    \text {where} \\
+    r_p =& \text {Mean of Adjusted Returns} \\
+    r_f =& \text {Risk free rate} \\
+    \sigma_{downside} =& \text {Standard deviation of the downside}
+  \end{aligned}
+\end{equation}
+  
+**Remarks:**
+  
+1. From the CV ratio, we can see that TSLA returns have larger variations than AAPL.
+  
+2. From the Sharpe ratio, we can see that AAPL generate better returns per unit of risk.
+  
+3. From the Treynor ratio, we can see that TSLA generate better EXCESS returns per unit of risk.
+  
+4. From the Sortino ratio, we can see that TSLA generate better risk-adjusted returns when considered downside risk.
+  
+  
+Overall TSLA returns are more volatile but potentially generate better risk-adjusted returns and excess returns compare to AAPL.
+  
