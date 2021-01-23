@@ -1,0 +1,23 @@
+---
+title: "assignment01"
+author: "Jeff Nguyen"
+date: "January 23, 2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, envir=.GlobalEnv)
+```
+
+**University of Southern California**  
+**Marshall School of Business**  
+**FBE 506 Quantitative Method in Finance**
+
+Assignment 01  
+Student Name: Ngoc Son (Jeff) Nguyen  
+
+
+# **Question 1**  
+
