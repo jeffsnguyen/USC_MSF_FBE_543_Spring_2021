@@ -79,18 +79,22 @@ names(X)[1] <- "Market Risk Premium"  # Rename column
 
 # Create a data frame of X, Y
 data1 <- data.frame(X, Y)
+Y_data <- data1$Portfolio.Risk.Premium
+X_data <- data1$Market.Risk.Premium
 ```
   
 We can observe the relationship between the market (S&P 500) risk premium and the portfolio (AAPL) risk premium as follow:
   
 ```{r}
-plot(data1, col='red', main="Relationship Between Market & Portfolio Risk Premium", pch=20, cex=1)
+plot(data1, col='red', main="Relationship Between Market & Portfolio Risk Premium"
+     , pch=20, cex=1)
 
 # Add fit lines
-abline(lm(Y~X), col="blue")  # Regression line Y ~ X
-lines(lowess(X,Y), col="black", lty=2)  # Lowess line (X,Y)
+abline(lm(Y_data~X_data), col="blue")  # Regression line Y ~ X
+lines(lowess(X_data,Y_data), col="black", lty=2)  # Lowess line (X,Y)
 
-legend("bottomleft",c("Linear fit line", "Lowess line"), cex=.8, col=c("blue", "black"), lty=1:2)
+legend("bottomleft",c("Linear fit line", "Lowess line"), cex=.8, col=c("blue", "black")
+       , lty=1:2)
 ```
 
 ## a. Relationship of AAPL with market
@@ -113,7 +117,7 @@ Hypothesis for regression:
 \end{equation}
 
 ```{r}
-fit1 <- lm(Y~X, data=data1)
+fit1 <- lm(Y_data~X_data, data=data1)
 summary(fit1)
 ```
    
@@ -141,24 +145,43 @@ Thus, upon exploring the goodness of fit and standard error of regression, we co
   
 Doing the ex-post forecast:
 ```{r}
-pred_expost <- predict(fit1, data1)
+# Split the data
+data1_1 <- data1[1:32,]
+data1_2 <- data1[33:35,]
+
+# run regression for data 1_1
+reg_expost <- lm(Y_data~X_data, data=data1_1)
+
+# Predicting using data1_2
+pred_expost <- predict(reg_expost, newdata=data1_2, se.fit=TRUE)
+pred_expost
 ```  
 
-We can see the side-by-side comparison of actual vs. ex-post forecast:
+Plot the ex-post forecast
   
 ```{r}
-compare_ex_post <- data.frame(rAAPL[-1,], pred_expost)
-compare_ex_post
+plot(Y_data, type="l", col="red")
+lines(reg_expost$fitted.values, col="blue")
 ```
+We can observe that the forecast (blue line) has trend that somewhat follow the actual result (red line) with the forecast overall having less variations than actual result.
   
-We note that the forecast is not exactly accurate.
-
 ## d. Ex-ante forecast.
   
 ```{r}
 library(forecast)
 
-#ex_ante_forecast <- forecast(fit1, newdata=data.frame(x=c(.010, .015, .015), se.fit=TRUE))
+# Run regression using all data in sample (data1)
+reg_exante <- lm(Y_data~X_data, data=data1)
+reg_exante
+
+pred_exante <- forecast(reg_exante, newdata=data.frame(X_data=c(.010,.015,.015)))
+pred_exante
+```
+  
+Graphing the regression and its forecast:
+  
+```{r}
+plot(pred_exante, type='l')
 ```
   
 # **Question 2**
