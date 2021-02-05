@@ -1,0 +1,36 @@
+---
+title: "assignment01_question_3"
+author: "Jeff Nguyen"
+date: "February 5, 2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, envir=.GlobalEnv)
+```
+
+**University of Southern California**  
+**Marshall School of Business**  
+**FBE 506 Quantitative Method in Finance**
+
+Assignment 01, Question 3 
+Student Name: Ngoc Son (Jeff) Nguyen  
+
+
+# **Question 3**
+  
+To test whether the pre-split changes in the stock price of TSLA was due to random fluctuations of the market due to the leak of stock split information, we complete an event study statistical analysis. Our assumption is that the stock market is efficient and thus, stock prices adjust quickly to news and information in the market. Steps:
+  
+1. Download data from Yahoo Finance. The following tickers are downloaded: TSLA, GSPC (representing the S&P 500).
+  
+2. Define two sets of data for Estimation Window and Event Window. The event happens on August 12, 2020.
+  
+3. Run a linear regression using Estimation Window.
+  
+4. Compute the test statistics: abnormal return (AR) and the t-test statistics on the significance of AR
+  
+
+
+  
