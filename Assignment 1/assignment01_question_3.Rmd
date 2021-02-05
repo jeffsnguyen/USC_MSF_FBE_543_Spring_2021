@@ -1,5 +1,5 @@
 ---
-title: "assignment01_question_3"
+title: "Assignment 01, Question 3"
 author: "Jeff Nguyen"
 date: "February 5, 2021"
 output:
@@ -14,8 +14,8 @@ knitr::opts_chunk$set(echo = TRUE, envir=.GlobalEnv)
 **University of Southern California**  
 **Marshall School of Business**  
 **FBE 506 Quantitative Method in Finance**
+  
 
-Assignment 01, Question 3 
 Student Name: Ngoc Son (Jeff) Nguyen  
 
 
@@ -29,8 +29,166 @@ To test whether the pre-split changes in the stock price of TSLA was due to rand
   
 3. Run a linear regression using Estimation Window.
   
-4. Compute the test statistics: abnormal return (AR) and the t-test statistics on the significance of AR
+4. Do an ex-post forecast of TSLA daily returns using data for the event period.
   
-
-
+5. Compute the test statistics: abnormal return (AR) and the t-test statistics on the significance of AR
   
+6. Concluding remarks
+  
+## **Event Study**
+
+### 1. Downloading data:
+  
+```{r}
+library(quantmod)
+
+# Set start date and end date of data
+start_date <- "2019-08-01"
+end_date <- "2020-10-31"
+event_date <- "2020-08-12"
+
+# Get data
+getSymbols("TSLA", src = "yahoo", from = start_date, to = end_date)
+getSymbols("^GSPC", src = "yahoo", , from = start_date, to = end_date) # S&P 500
+
+# Get adjusted returns data
+rTSLA <- diff(log(TSLA$TSLA.Adjusted))
+rGSPC <- diff(log(GSPC$GSPC.Adjusted))
+```
+  
+Observe TSLA and S&P 500 for the period:
+  
+```{r}
+# Initialize xts objects contain adjusted price for S&P 500 and AAPL and merge
+gspc_xts <- as.xts(GSPC[,"GSPC.Adjusted"])
+tsla_xts <- as.xts(TSLA[,"TSLA.Adjusted"])
+price_compare <- merge.xts(gspc_xts, tsla_xts)
+
+# Graph monthly AAPL and monthly S&P500 on one coordinate system
+# Plot S&P 500
+plot(as.zoo(price_compare[, "GSPC.Adjusted"]), screens = 1, main = "S&P 500 and TSLA Adjusted Price Overlay", 
+     xlab = "Year", ylab = "Price", col = "Red")
+
+# Keep working on the same plot
+par(new = TRUE)
+
+# Plot AAPL and suppress axis value
+plot(as.zoo(price_compare[, "TSLA.Adjusted"]), screens = 1, xaxt = "n", yaxt = "n", xlab = "", ylab = "", col = "Blue")
+
+# Add right-handed axis to display AAPL price
+axis(4)
+
+# Add legend
+legend("topleft", c("S&P 500 Adjusted Price", "TSLA Adjusted Price"), lty = 1:1, cex = 0.75, fill = c("red", "blue"))
+```
+  
+For the period, we can observe TSLA price trend tracks that of the S&P 500 closely with S&P500 experience more volatility at the March 2020 global pandemic shutdown.
+
+### 2. Define two set of data:
+  
+```{r}
+# Data File
+data_ret <- data.frame(rTSLA, rGSPC)
+colnames(data_ret) <- c('rTSLA', 'rGSPC')
+
+# Define two set of data
+data_ret_estimation <- data_ret[4:255,]
+cat("The number of trading day in estimation data set is", nrow(data_ret_estimation))
+
+data_ret_test <- data_ret[256:266,]
+cat("The number of trading day in test data set is", nrow(data_ret_test))
+data_ret_test
+```
+  
+### 3. Run a linear regression using Estimation Window:
+  
+We attempt to fit an equation of a line: $Y = \alpha_{Jensen} + \beta * X + \epsilon$  
+
+Hypothesis for regression:  
+\begin{equation}
+  \begin{aligned}
+    H_0: \alpha =& 0  \\
+    H_a: \alpha \neq& 0  \\
+    \text{and}  \\
+    H_0: \beta =& 0  \\
+    H_a: \beta \neq& 0  \\
+  \end{aligned}
+\end{equation}
+  
+```{r}
+reg <- lm(rTSLA~rGSPC, data=data_ret_estimation)
+
+summary(reg)
+```
+  
+The estimated equation is $rTSLA = .006730 + 1.181994*rGSPC$, where the $p_{value}$ for the intercept $.0143 < .05$.  
+Therefore, we reject the null hypothesis at 95% confidence level that the intercept $\alpha_{Jensen}$ statistically is no different from 0. Thus, we reject the null hypothesis $H_0: \alpha = 0$ and accept the null hypothesis $H_a: \alpha \neq 0$.    
+  
+Similarly, the $p_{value}$ for $\beta$ is $2e-16 < .05$, implying that the coefficient $\beta$ statistically is significant at 95% or more, and we reject the null hypothesis $H_0: \beta = 0$ and accept the alternative hypothesis $H_a: \beta \neq 0$.  
+
+Goodness of Fit:  
+Through inspection of the linear regression result, we observe the $R^2 = .2539$ value to not be close to 1 at all. $R^2 = .2539$ implies that $25.39\%$ of the variations in daily returns of TSLA is explained by that or the S&P 500.
+  
+Standard Error of Regression:  
+We can see that the Standard Error of Regression is $S.E. = .04329$.
+  
+We have the mean daily returns of TSLA for the period to be $mean(na.omit(rTSLA))$.
+  
+From this, we can calculate the forecasting efficiency statistic to be: 
+\begin{equation}
+  \begin{aligned}
+    \frac{S.E.}{\overline Y} =& \frac{.04329}{`r mean(na.omit(rTSLA))`}   \\
+                             =& `r round(.04329*100/mean(na.omit(rTSLA)),2)`\% > 10\%  \\
+  \end{aligned}
+\end{equation}
+This statistic implies that the linear model is not a good forecasting model.  
+
+Thus, upon exploring the goodness of fit and standard error of regression, we can see that daily returns of TSLA and S&P500 do not follow a linear model.
+  
+### 4. Do an ex-post forecast of TSLA daily returns using data for the event period.
+  
+```{r}
+library(forecast)
+
+pred <- predict(reg, newdata=data_ret_test, se.fit = TRUE)
+pred
+```
+
+### 5. Compute the test statistics: abnormal return (AR) and the t-test statistics on the significance of AR
+  
+Calculate abnormal return statistics:
+  
+```{r}
+#Find Abnormal Return
+ar_data <- cbind(data_ret_test$rTSLA,  pred$fit)
+ar_data
+
+ar <- data_ret_test$rTSLA - pred$fit
+ar
+
+ar_plot <- data.frame(ar)
+colnames(ar_plot) <- "AR"
+chartSeries(ar_plot, name="Abnormal Returns", type='line', theme=chartTheme("white"))
+```
+  
+Do a t-test for the significance of the abnormal returns:
+  
+```{r}
+T_Data <- cbind(ar, pred$se.fit)
+T_test <- data.frame(ar/pred$se.fit)
+T_test
+```
+  
+Plot the cummulative abnormal return statistics to examine the impact of the event and the efficiency of the market:
+  
+```{r}
+cum <- data.frame(cumsum(ar))
+colnames(cum) <- "CAR"
+cum
+
+chartSeries(cum, name="Cumulative Abnormal Returns", type='line', theme=chartTheme("white"))
+```
+  
+### 6. Concluding Remarks
+  
+The event happens on August 12, 2020. We can observe that the event was a surprise to the market as TSLA sold off prior to the event, from Aug 5 to Aug 11 and increased in price substantially after the announcement. Thus, we conclude that the pre-split changes in the stock price was due to random fluctuations of the market and not because of the leak of the stock split information.
