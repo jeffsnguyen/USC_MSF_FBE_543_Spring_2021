@@ -1,5 +1,5 @@
 ---
-title: "assignment01"
+title: "assignment01_question_1_2"
 author: "Jeff Nguyen"
 date: "January 23, 2021"
 output:
@@ -15,7 +15,7 @@ knitr::opts_chunk$set(echo = TRUE, envir=.GlobalEnv)
 **Marshall School of Business**  
 **FBE 506 Quantitative Method in Finance**
 
-Assignment 01  
+Assignment 01, Question 1&2 
 Student Name: Ngoc Son (Jeff) Nguyen  
 
 
