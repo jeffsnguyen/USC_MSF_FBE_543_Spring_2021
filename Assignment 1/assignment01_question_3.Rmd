@@ -66,20 +66,29 @@ price_compare <- merge.xts(gspc_xts, tsla_xts)
 
 # Graph monthly AAPL and monthly S&P500 on one coordinate system
 # Plot S&P 500
-plot(as.zoo(price_compare[, "GSPC.Adjusted"]), screens = 1, main = "S&P 500 and TSLA Adjusted Price Overlay", 
+plot(as.zoo(price_compare[, "GSPC.Adjusted"]), screens = 1, 
+     main = "S&P 500 and TSLA Adjusted Price Overlay", 
      xlab = "Year", ylab = "Price", col = "Red")
 
 # Keep working on the same plot
 par(new = TRUE)
 
 # Plot AAPL and suppress axis value
-plot(as.zoo(price_compare[, "TSLA.Adjusted"]), screens = 1, xaxt = "n", yaxt = "n", xlab = "", ylab = "", col = "Blue")
+plot(as.zoo(price_compare[, "TSLA.Adjusted"]), 
+     screens = 1, 
+     xaxt = "n", yaxt = "n", 
+     xlab = "", ylab = "", 
+     col = "Blue")
 
 # Add right-handed axis to display AAPL price
 axis(4)
 
 # Add legend
-legend("topleft", c("S&P 500 Adjusted Price", "TSLA Adjusted Price"), lty = 1:1, cex = 0.75, fill = c("red", "blue"))
+legend("topleft", 
+       c("S&P 500 Adjusted Price", "TSLA Adjusted Price"), 
+       lty = 1:1, 
+       cex = 0.75, 
+       fill = c("red", "blue"))
 ```
   
 For the period, we can observe TSLA price trend tracks that of the S&P 500 closely with S&P500 experience more volatility at the March 2020 global pandemic shutdown.
@@ -168,7 +177,10 @@ ar
 
 ar_plot <- data.frame(ar)
 colnames(ar_plot) <- "AR"
-chartSeries(ar_plot, name="Abnormal Returns", type='line', theme=chartTheme("white"))
+chartSeries(ar_plot, 
+            name="Abnormal Returns", 
+            type='line', 
+            theme=chartTheme("white"))
 ```
   
 Do a t-test for the significance of the abnormal returns:
@@ -186,7 +198,10 @@ cum <- data.frame(cumsum(ar))
 colnames(cum) <- "CAR"
 cum
 
-chartSeries(cum, name="Cumulative Abnormal Returns", type='line', theme=chartTheme("white"))
+chartSeries(cum, 
+            name="Cumulative Abnormal Returns", 
+            type='line', 
+            theme=chartTheme("white"))
 ```
   
 ### 6. Concluding Remarks
