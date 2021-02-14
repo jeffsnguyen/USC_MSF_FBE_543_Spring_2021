@@ -1,0 +1,616 @@
+---
+title: "Assignment 02, Question 1&2"
+author: "Jeff Nguyen"
+date: "February 14, 2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, envir=.GlobalEnv)
+```
+
+**University of Southern California**  
+**Marshall School of Business**  
+**FBE 543 Forecasting and Risk Analysis**
+  
+Student Name: Ngoc Son (Jeff) Nguyen  
+
+
+# **Question 1**
+
+## a. Estimating a one-factor CAPM for a single-stock portfolio containing only AAPL.
+  
+To estimate the $\beta$ coefficients of the single stock (AAPL) CAPM portfolio, we follow these steps:
+  
+1. Download data from Yahoo Finance. The following tickers are downloaded: AAPL, GSPC (representing the S&P 500) and TNX (representing the US Treasury Bills.)
+  
+2. Calculate the following statistics of the portfolio using adjusted monthly closing price (converted from daily): monthly returns (AAPL, GSPC and TNX), mean returns.
+  
+3. The expected risk premium of the portfolio based on the CAPM model is given as:  
+  
+\begin{equation}
+  \begin{aligned}
+    E[R_a - R_f] =& \beta * (R_m - R_f)  \\
+    \text{or}  \\
+    R_a =& R_f + \beta * (R_m - R_f)  \\
+    R_a - R_f =& \alpha_{Jensen} + \beta * (R_m - R_f)  \\
+    \text{or}  \\
+    Y =& \alpha_{Jensen} + \beta * X + epsilon \\
+    \text{with}  \\
+    Y =& R_a - R_f  \\
+    X =& R_m - R_f  \\
+    \beta =& \text{Market risk or systematic risk}  \\
+    \epsilon =& \text{stochastic error term} \\
+  \end{aligned}
+\end{equation}
+
+
+```{r}
+library(quantmod)
+
+# Set start date and end date of data
+start_date <- "2018-01-01"
+end_date <- "2020-12-31"
+
+# Get data
+getSymbols("AAPL", src = "yahoo", from = start_date, to = end_date)
+getSymbols("^GSPC", src = "yahoo", , from = start_date, to = end_date) # S&P 500
+getSymbols("^TNX", src = "yahoo", from = start_date, to = end_date) # TNX (10-year T-bill)
+
+# Adjusted Prices
+adjAAPL <- AAPL$AAPL.Adjusted
+
+# Get adjusted returns data
+rAAPL <- diff(log(to.monthly(AAPL)$AAPL.Adjusted))
+rGSPC <- diff(log(to.monthly(GSPC)$GSPC.Adjusted))
+rTNX <- (to.monthly(TNX)$TNX.Adjusted) / 1200 # Using monthly rate
+
+# Calculate Portfolio Risk Premium
+Y <- na.omit(rAAPL - rTNX)
+names(Y)[1] <- "Portfolio Risk Premium"  # Rename column
+Y_bar <- mean(Y)
+Y_bar
+
+# Calculate Market Risk Premium
+X <- na.omit(rGSPC - rTNX)
+X_bar <- mean(X)
+names(X)[1] <- "Market Risk Premium"  # Rename column
+
+# Create a data frame of X, Y
+data1 <- data.frame(X, Y)
+Y_data <- data1$Portfolio.Risk.Premium
+X_data <- data1$Market.Risk.Premium
+```
+  
+We can observe the relationship between the market (S&P 500) risk premium and the portfolio (AAPL) risk premium as follow:
+  
+```{r}
+plot(data1, col='red', main="Relationship Between Market & Portfolio Risk Premium"
+     , pch=20, cex=1)
+
+# Add fit lines
+abline(lm(Y_data~X_data), col="blue")  # Regression line Y ~ X
+lines(lowess(X_data,Y_data), col="black", lty=2)  # Lowess line (X,Y)
+
+legend("bottomleft",c("Linear fit line", "Lowess line"), cex=.8, col=c("blue", "black")
+       , lty=1:2)
+```
+
+### Relationship of AAPL with market
+  
+Upon inspection, we observe a strong positive correlation between the AAPL portfolio and the market. Therefore, we can conclude that AAPL follow the market relatively closely, but not necessarily linearly.
+
+### Hypothesis testing
+  
+Next, we attempts to fit an equation of a line: $Y = \alpha_{Jensen} + \beta * X + \epsilon$  
+
+Hypothesis for regression:  
+\begin{equation}
+  \begin{aligned}
+    H_0: \alpha =& 0  \\
+    H_a: \alpha \neq& 0  \\
+    \text{and}  \\
+    H_0: \beta =& 0  \\
+    H_a: \beta \neq& 0  \\
+  \end{aligned}
+\end{equation}
+
+```{r}
+fit1 <- lm(Y_data~X_data, data=data1)
+summary(fit1)
+```
+   
+The estimated equation is $Y = .02455 - 1.27630*X$, where the $p_{value}$ for the intercept $.0479 < .05$.  
+Therefore, we reject the null hypothesis at 95% confidence level that the intercept $\alpha_{Jensen}$ statistically is no different from 0. Thus, we reject the null hypothesis $H_0: \alpha = 0$ and accept the alternative hypothesis $H_a: \alpha \neq 0$.    
+The coefficient $\beta = 1.27630$ represents the increase in portfolio risk premium relative to increase in the market portfolio risk premium. The $p_{value}$ for $\beta$ is $1.73e-06 < .05$, implying that the coefficient $\beta$ statistically is significant at 95% or more, and we reject the null hypothesis $H_0: \beta = 0$ and accept the alternative hypothesis $H_a: \beta \neq 0$.  
+
+Goodness of Fit:  
+Through inspection of the linear regression result, we observe the $R^2 = .5049$ value to not be close to 1 at all. $R^2 = .5049$ implies that $50.49\%$ of the variations in the portfolio risk premium is explained by the market risk premium.
+  
+Standard Error of Regression:  
+We can see that the Standard Error of Regression is $S.E. = .0702$.  
+From this, we can calculate the forecasting efficiency statistic to be:  
+\begin{equation}
+  \begin{aligned}
+    \frac{S.E.}{\overline Y} =& \frac{.0702}{`r Y_bar`}   \\
+                             =& `r round(.0702*100/Y_bar,2)`\% > 10\%  \\
+  \end{aligned}
+\end{equation}
+This statistic implies that the linear model is not a good forecasting model.  
+
+Thus, upon exploring the goodness of fit and standard error of regression, we confirm our initial observation that the portfolio risk premium and the market portfolio risk premium has a weak linear relationship.  
+
+## b. Estimating a one-factor CAPM for a single-stock portfolio containing only AAPL including intercept and slope dummies for the shut-down of the economy in March 16, 2020.
+  
+We run regression for the model to see if the March 16, 2020 pandemic shut-down has any effect on Jensen alpha:    
+
+\begin{equation}
+  \begin{aligned}
+    Y & = \alpha_{Jensen} + \beta*X + \beta_1*D + \epsilon \\
+    \text{where: }  \\
+    Y & = \, \text{Portfolio Risk Premium} \, R_a - R_f  \\
+    \beta & = \, \text{Estimated} \, \beta \, \text{of the CAPM}  \\
+    X & = \, \text{Market portfolio risk premium} \, R_m - R_f  \\
+    \beta_1 & = \, \text{Coefficient representing the relationship of the portfolio risk premium with the pandemic factor}  \\
+    D & = \, \text{Dummy variable representing the pandemic factor}  \\
+    \epsilon & = \, \text{Standard Error of Regression}  \\
+  \end{aligned}
+\end{equation}
+
+### Hypothesis for regression:  
+  
+\begin{equation}
+  \begin{aligned}
+    H_0: \alpha & = 0  \\
+    H_a: \alpha & \neq 0  \\
+    \text{and}  \\
+    H_0: \beta_1 & = 0  \\
+    H_a: \beta_1 & \neq 0  \\
+  \end{aligned}
+\end{equation}  
+  
+ 
+```{r}
+# Generating the dummy variable
+D <- rep(0, 35)
+D[26] <-1
+D
+
+data2 <- data.frame(D, Y)
+names(data2)[1] <- "Pandemic Variable"
+```
+We examine our dataset with the pandemic variable:
+  
+```{r}
+data2
+```
+
+### Initial Observation
+  
+We then do a plot of AAPL portfolio stock price:
+  
+```{r}
+# Initialize xts objects contain adjusted price for S&P 500 and AAPL and merge
+gspc_xts <- as.xts(GSPC[,"GSPC.Adjusted"])
+aapl_xts <- as.xts(AAPL[,"AAPL.Adjusted"])
+price_compare <- merge.xts(gspc_xts, aapl_xts)
+
+# Graph monthly AAPL and monthly S&P500 on one coordinate system
+# Plot S&P 500
+plot(as.zoo(price_compare[, "GSPC.Adjusted"]), screens = 1, 
+     main = "S&P 500 and AAPL Adjusted Price Overlay", 
+     xlab = "Year", ylab = "Price", col = "Red")
+
+# Keep working on the same plot
+par(new = TRUE)
+
+# Plot AAPL and suppress axis value
+plot(as.zoo(price_compare[, "AAPL.Adjusted"]), 
+     screens = 1, 
+     xaxt = "n", yaxt = "n", 
+     xlab = "", ylab = "", 
+     col = "Blue")
+
+# Add right-handed axis to display AAPL price
+axis(4)
+
+# Add legend
+legend("topleft", 
+       c("S&P 500 Adjusted Price", "AAPL Adjusted Price"), 
+       lty = 1:1, 
+       cex = 0.75, 
+       fill = c("red", "blue"))
+```
+  
+Upon inspection, we notice there is violent decline in the price of the market portfolio, represented by the S&P500 as well as our single-stock portfolio of AAPL around March 2020.
+
+### Regression  
+Let's assume linearity, we run regression on $Y = \alpha_{Jensen} + \beta*X + \beta_1*D$ as hypothesized above.  
+
+```{r}
+fit2 <- lm(Y~X+D)
+summary(fit2)
+```
+
+The estimated equation is $Y = .02100 + 1.40762*X - .09508*D$, where the $p_{value}$ for the intercept $.0957 > .05$.  
+Therefore, we failed reject the null hypothesis at 95% confidence level that the intercept $\alpha_{Jensen}$ statistically is no different from zero. Thus, we failed to reject the null hypothesis $H_0: \alpha = 0$.  
+
+### Pandemic Factor
+In addition, the coefficient $\beta_1 = -.16285$ represents the increase in portfolio risk premium relative to increase in the pandemic variable. The $p_{value}$ for $\beta_1$ is $2.17e-06 < .05$, implying that the coefficient $\beta_1$ statistically is significant at 95% or more, and we reject the null hypothesis $H_0: \beta_1 = 0$ and accept the alternative hypothesis $H_a: \beta_1 \neq 0$.  
+
+Goodness of Fit:  
+Through inspection, we observe the $R^2 = .5263$ value to not be close to 1 at all. $R^2 = .5263$ implies that $52.63\%$ of the variations in the portfolio risk premium is explained by the pandemic variable.
+  
+Standard Error of Regression:  
+We can see that the Standard Error of Regression is $S.E. = .06973$.  
+From this, we can calculate the forecasting efficiency statistic to be:  
+\begin{equation}
+  \begin{aligned}
+    \frac{S.E.}{\overline Y} & = \frac{.06973}{`r Y_bar`}   \\
+                             & = `r round(.06973*100/Y_bar,2)`\% > 10\%  \\
+  \end{aligned}
+\end{equation}
+This statistic implies that this is not a good forecasting model.  
+
+### **Remarks**
+  
+Based on the above result of the regression, we confirm our initial observation that there is evidence that the pandemic shut-down did have an effect on the AAPL portfolio's portfolio risk premium and consequently, its valuation as well.
+  
+## c. Estimating a three-factor CAPM for a single-stock portfolio containing only AAPL.
+
+### The FF CAPM 3-factor model
+  
+The Fama-French three-factor is expressed as:
+  
+\begin{equation}
+  \begin{aligned}
+    R_a - R_f =& \quad \alpha + \beta_1(R_m - R_f) + \beta_2\text{SMB} + \beta_3\text{HML} + \epsilon  \\
+    \text{where}  \\
+    R_a - R=f =& \quad \text{Portfolio Risk Premium}  \\
+    R_m - R=f =& \quad \text{Market Factor}  \\
+    R_f =& \quad \text{Risk-free rate}  \\
+    \beta_1 =& \quad \text{analogous to the original CAPM beta}  \\
+    \text{SMB} =& \quad \text{Size Factor}  \\
+    \text{HML} =& \quad \text{Value Factor} \\
+    \epsilon =& \quad \text{stochastic error term} \\
+  \end{aligned}
+\end{equation}
+
+### Importing data
+  
+Importing Fama-French CAPM 3-factor data to our data frame and extract the data
+  
+```{r}
+# Importing the FF 3-factor CAPM
+ff_data <- read.table("ffdata.csv", header=TRUE, sep=",")
+ff_data
+
+# Extract column data
+rmrf <- ff_data[,2]
+smb <- ff_data[,3]
+hml <- ff_data[,4]
+rf <- ff_data[,5]
+fund <- ff_data[,6]
+
+# Calculate excess return for AAPL portfolio
+fundExcess <- fund - rf
+```
+
+### Regression Analysis
+
+Hypothesis for regression:  
+  
+\begin{equation}
+  \begin{aligned}
+    H_0: \alpha =& 0  \\
+    H_a: \alpha \neq& 0  \\
+    \text{and}  \\
+    H_0: \beta_1 =& \beta_2 = \beta_3 = 0  \\
+    H_a: \text{At least one of} \quad \beta_1, \beta_2, \beta_3 \neq& 0  \\
+  \end{aligned}
+\end{equation}
+
+Next up, we run the linear regression on the original FF CAPM 3-factor using imported data:
+  
+```{r}
+ffRegression <- lm(fundExcess ~ rmrf + smb + hml)
+summary(ffRegression)
+```
+  
+The estimated equation is $R_a - R_f = -.124303 + .016149(R_m - R_f) + .007402*SMB - .010387*HML$, where the $p_{value}$ for the intercept $3.58e-07 < .05$.  
+Therefore, we reject the null hypothesis at 95% confidence level that the intercept $\alpha_{Jensen}$ statistically is no different from 0. Thus, we reject the null hypothesis $H_0: \alpha = 0$ and accept the alternative hypothesis $H_a: \alpha \neq 0$.    
+
+#### Market factor
+  
+The coefficient $\beta_1 = .016149$ represents the increase in portfolio risk premium relative to increase in the market portfolio risk premium. The $p_{value}$ for $\beta_1$ is $6.24e-05 < .05$, implying that the coefficient $\beta_1$ statistically is significant at 95% or more, and we reject the null hypothesis $H_0: \beta_1 = 0$ and accept the alternative hypothesis $H_a: \beta_1 \neq 0$.  
+
+#### Size factor
+  
+The coefficient $\beta_2 = ..007402$ represents the increase in portfolio risk premium relative to increase firm size. The $p_{value}$ for $\beta_1$ is $.3107 > .05$, implying that the coefficient $\beta_2$ statistically is insignificant at 95% or more, and we accept the null hypothesis $H_0: \beta_2 = 0$ and reject the alternative hypothesis $H_a: \beta_2 \neq 0$.  
+  
+#### Value factor
+  
+The coefficient $\beta_3 = .010387$ represents the increase in portfolio risk premium relative to increase in the market portfolio risk premium. The $p_{value}$ for $\beta_1$ is $.0543 > .05$, implying that the coefficient $\beta_3$ statistically is insignificant at 95% or more, and we accept the null hypothesis $H_0: \beta_3 = 0$ and reject the alternative hypothesis $H_a: \beta_3 \neq 0$.  
+
+Goodness of Fit:  
+  
+Through inspection of the linear regression result, we observe the $R^2 = .5252$ value to not be close to 1 at all. $R^2 = .5252$ implies that $52.52\%$ of the variations in the portfolio risk premium is explained by the market risk premium.
+  
+Standard Error of Regression:  
+  
+We can see that the Standard Error of Regression is $S.E. = .09977$.  
+From this, we can calculate the forecasting efficiency statistic to be:  
+\begin{equation}
+  \begin{aligned}
+    \frac{S.E.}{\overline Y} =& \frac{.09977}{`r Y_bar`}   \\
+                             =& `r round(.09977*100/Y_bar,2)`\% > 10\%  \\
+  \end{aligned}
+\end{equation}
+This statistic implies that the linear model is not a good forecasting model.  
+
+### **Remarks**
+  
+The 3-factor model differs from the single-factor CAPM in that its hypothesis is that the market valuation of a portfolio is based on three different risks factors: market, size and value compared to just market in the single-factor model.
+  
+The addition of the two factors add flexibility to the original CAPM model. It also adjusts for the historical tendency of small-cap stocks outperforming big-cap stock. Thus, it does not penalize predominantly big-cap portfolio and consequently, provids a better tool to evaluate the portfolio performance.
+  
+## d. Estimating a three-factor CAPM for a single-stock portfolio containing only AAPL including intercept and slope dummies for the shut-down of the economy in March 16, 2020.
+
+### The FF CAPM 3-factor model with dummy pandemic variable
+  
+The model is expressed as follow:
+  
+\begin{equation}
+  \begin{aligned}
+    R_a - R_f =& \quad \alpha + \beta_1(R_m - R_f) + \beta_2\text{SMB} + \beta_3\text{HML} + \beta_4*D \epsilon  \\
+    \text{where}  \\
+    R_a - R=f =& \quad \text{Portfolio Risk Premium}  \\
+    R_m - R=f =& \quad \text{Market Factor}  \\
+    R_f =& \quad \text{Risk-free rate}  \\
+    \beta_1 =& \quad \text{analogous to the original CAPM beta}  \\
+    \text{SMB} =& \quad \text{Size Factor}  \\
+    \text{HML} =& \quad \text{Value Factor} \\
+    \beta_4 & = \, \text{Coefficient representing the relationship of the portfolio risk premium with the pandemic factor}  \\
+    D & = \, \text{Dummy variable representing the pandemic factor}  \\
+    \epsilon =& \quad \text{stochastic error term} \\
+  \end{aligned}
+\end{equation}
+  
+### Regression Analysis
+
+Hypothesis for regression:  
+  
+\begin{equation}
+  \begin{aligned}
+    H_0: \alpha =& 0  \\
+    H_a: \alpha \neq& 0  \\
+    \text{and}  \\
+    H_0: \beta_4 =& 0  \\
+    H_a: \beta_4 \neq& 0  \\
+  \end{aligned}
+\end{equation}
+  
+We examine our dataset with the pandemic variable:
+```{r}
+# Generating the data frame with dummy variable
+ff_data$Pandemic <- D
+ff_data
+```
+  
+Next up, we run the linear regression on the original FF CAPM 3-factor using imported data:
+  
+```{r}
+ffRegression_wDummy <- lm(fundExcess ~ rmrf + smb + hml + D)
+summary(ffRegression_wDummy)
+```
+  
+The estimated equation is $R_a - R_f = -.124303 + .016149(R_m - R_f) + .007402*SMB - .010387*HML + .076188*D$, where the $p_{value}$ for the intercept $3.58e-07 < .05$.  
+Therefore, we reject the null hypothesis at 95% confidence level that the intercept $\alpha_{Jensen}$ statistically is no different from 0. Thus, we reject the null hypothesis $H_0: \alpha = 0$ and accept the alternative hypothesis $H_a: \alpha \neq 0$.    
+
+#### Pandemic factor
+  
+In addition, the coefficient $\beta_4 = .076188$ represents the increase in portfolio risk premium relative to increase in the pandemic variable. The $p_{value}$ for $\beta_4$ is $.590 > .05$, implying that the coefficient $\beta_4$ statistically is insignificant at 95% or more, and we failed to reject the null hypothesis $H_0: \beta_4 = 0$ and reject the alternative hypothesis $H_a: \beta_4 \neq 0$.  
+  
+Goodness of Fit:  
+  
+Through inspection of the linear regression result, we observe the $R^2 = .5299$ value to not be close to 1 at all. $R^2 = .5299$ implies that $52.99\%$ of the variations in the portfolio risk premium is explained by the market risk premium.
+  
+Standard Error of Regression:  
+  
+We can see that the Standard Error of Regression is $S.E. = .1009$.  
+From this, we can calculate the forecasting efficiency statistic to be:  
+\begin{equation}
+  \begin{aligned}
+    \frac{S.E.}{\overline Y} =& \frac{.1009}{`r Y_bar`}   \\
+                             =& `r round(.1009*100/Y_bar,2)`\% > 10\%  \\
+  \end{aligned}
+\end{equation}
+This statistic implies that the linear model is not a good forecasting model.  
+
+### **Remarks**
+  
+After including the dummy pandemic variable, the linear regression analysis shows that the pandemic has little effect on AAPL returns, adjusting for size and value. This contradicts with our findings in the original single-factor CAPM regression analysis.
+  
+# **Question 2**
+  
+## a. Test the hypothesis that the mean returns of all four portfolios are not statistically different from each other
+   
+We make the following assumptions:
+  
+1. The observations are obtained independently and randomly from the population defined by the factor levels.
+  
+2. The data of each factor level are normally distributed.
+  
+3. These normal populations have a common variance.
+  
+### Data Cleaning
+  
+First, we generate the data set as below:
+  
+```{r}
+# Data entry of average annual returns for each portfolio
+rA <- c(4.5, 3.8, 4.8, 3.7, 2.1, 3.1, 4.3, 7.9, 6.2, 6.6)
+rB <- c(6.8, 5.2, 5.9, 5.7, 3.2, 1.8, 2.9, 8.2, 7.2, 9.1)
+rC <- c(3.6, 4.7, 6.5, 3.5, 2.8, 2.2, 3.5, 5.6, 4.2, 5.9)
+rD <- c(4.6, 3.2, 5.5, 2.9, 4.8, 4.0, 2.5, 5.3, 3.2, 6.1)
+aggReturns <- c(rA, rB, rC, rD)
+
+# Generate dataframe
+data <- data.frame(aggReturns)
+data$portfolioID <- c(rep("A", 10), rep("B", 10), 
+                      rep("C", 10), rep("D", 10)) # Adding portfolio ID column
+data$year <- rep(c(2005, 2006, 2007, 2008, 2009, 
+                   2010, 2011, 2012, 2013, 2014), 4)  # Adding year column
+data$origin <- c(rep("domestic", 20), rep("foreign", 20))
+data
+```
+  
+Next, we look at a side-by-side box plot of the 4 portfolio returns:
+  
+```{r}
+boxplot(data$aggReturns~data$portfolioID, xlab="Portfolio ID", ylab="Returns")
+```
+  
+By inspection, we can see that the mean returns of portfolio A, C and D are similar and are different from that of portfolio B. We can also see that A, C and D have similar variance of returns wherease B has much larger variance of returns.
+  
+### Hypothesis for regression
+  
+Next we test the hypothesis that the mean returns of all 4 portfolios are not statistically different from each other. In other words:
+  
+\begin{equation}
+  \begin{aligned}
+    H_0: \mu_A =& \mu_B = \mu_C = \mu_D  \\
+    H_a: \mu_A \neq& \mu_B \neq \mu_C \neq \mu_D  \\
+    \text{where}  \\
+    \mu_A\text{,} \, \mu_B \text{,} \, \mu_C \text{,} \, \mu_D \, =& \text{mean returns of A,B,C,D portfolios}  \\
+  \end{aligned}
+\end{equation}
+  
+### Regression Analysis
+  
+We use dummy variable to run the ANOVA test.
+  
+```{r}
+# Portfolio Dummies for A
+dummyA <- rep(0, 40)
+dummyA[1:10] <- 1
+
+# Portfolio Dummies for B
+dummyB <- rep(0, 40)
+dummyB[11:20] <- 1
+
+# Portfolio Dummies for C
+dummyC <- rep(0, 40)
+dummyC[21:30] <- 1
+
+# Portfolio Dummies for D
+dummyD <- rep(0, 40)
+dummyD[30:40] <- 1
+
+# Add dummy variable to the dataset
+data <- cbind(data, dummyA, dummyB, dummyC, dummyD)
+data
+```
+  
+We run ANOVA Test on the equality of mean returns for portfolio A, B, C, and D:
+  
+```{r}
+reg1 <- lm(aggReturns ~ dummyA + dummyB + dummyC, data=data)
+summary(reg1)
+```
+
+### Remarks
+  
+By examining the F-statistics's p-value of $.2669 > .05$, we accept the null hypothesis that the difference in mean returns of the portfolios are insignificant, i.e. $\mu_A = \mu_B = \mu_C = \mu_D$ and the mean return is $4.21$.
+
+## b. Does data indicate any one portfolio have a better performance than others. If so, which and by how much?
+  
+From the ANOVA in a., we observe that $dummyC$ is least significant. So we drop it and rerun the regression with $dummyD$.
+  
+```{r}
+reg2 <- lm(aggReturns ~ dummyA + dummyB + dummyD, data=data)
+summary(reg2)
+```
+  
+### **Remarks**
+We can observe similar results, i.e. $dummyD$ is also insignificant. Thus, there are no one portfolio that has better performance than others.
+  
+## c. Test whether the GFC recession in 2008 and 2009 had any effect on the mean returns of portfolios.
+  
+### Hypothesis for Regression
+  
+Our main hypothesis is that all portfolios have similar mean returns.  
+Our recession hypothesis is that the recession of 08 and 09 has no effect on our 4 portfolio returns. In other words:
+  
+\begin{equation}
+  \begin{aligned}
+    \text{Main hypothesis}  \\
+    H_0: \mu_A =& \mu_B = \mu_C = \mu_D  \\
+    H_a: \mu_A \neq& \mu_B \neq \mu_C \neq \mu_D  \\
+    \text{Recession Hypothesis}  \\
+    H_0: \beta_{Recession} =& 0  \\
+    H_a: \beta_{Recession} \neq& 0  \\
+  \end{aligned}
+\end{equation}
+  
+### ANOVA Test on Effect of Recession on Portfolio Returns
+  
+We first generate recession dummy variable as follow:
+  
+```{r}
+dummyRecession <- rep(c(0, 0, 0, 1, 1, 0, 0, 0, 0, 0), 4)
+data$dummyRecession <- dummyRecession
+```
+  
+Running the regression:
+  
+```{r}
+regRec1 <- lm(aggReturns ~ dummyA + dummyB + dummyC + dummyRecession, data=data)
+summary(regRec1)
+```
+  
+### **Remarks**
+  
+We can observe that the p-value of the F-statistics is statisticall insignificant so we accept the null hypothesis that the portfoflios have similar mean returns.
+  
+In addition, we can observe that the $dummyRecession$ variable is statistically significant at $.0439 < .05$. Thus we reject the null recession hypothesis that recession has no effect on portfolio returns. From the result of the regression summary, we can see the effect to be $-1.3781$. 
+
+## d. For each portfolio, find the mean return during the recession and no-recession period
+  
+From above, we note that the mean returns of each portfolio is normally $4.4856$ and $4.4856 - 1.3781 = 3.1075$ during the recession period.
+  
+## e. Test whether the portfolio's origin (domestic/foreign) had any affect on the average return to portfolios.
+  
+### Hypothesis for Regression
+  
+Our origin hypothesis is that the portfolio's origin has no effect on our 4 portfolio returns. In other words:
+  
+\begin{equation}
+  \begin{aligned}
+    \text{Origin Hypothesis}  \\
+    H_0: \beta_{origin} =& 0  \\
+    H_a: \beta_{origin} \neq& 0  \\
+  \end{aligned}
+\end{equation}
+  
+### ANOVA Test on Effect of Origin on Portfolio Returns
+  
+We first generate origin dummy variable as follow with the dummy value for domestic origin being 1 and foreign origin being 0.
+  
+```{r}
+dummyOrigin <- c(rep(1, 20), rep(0, 20))
+data$dummyOrigin <- dummyOrigin
+```
+  
+Running the regression:
+  
+```{r}
+regOrigin <- lm(aggReturns ~ dummyOrigin, data=data)
+summary(regOrigin)
+```
+  
+### **Remarks**
+  
+We can observe that the p-value of the F-statistics is $.1006 > .05$ and thus, statistically insiginificant at 95%. The coefficient $\beta_{origin}$ is also statistically insignificant as its p-value is $.101 > .05$. Thus we accept the null recession hypothesis that portfolio's underlying origin has no effect on portfolio returns.
