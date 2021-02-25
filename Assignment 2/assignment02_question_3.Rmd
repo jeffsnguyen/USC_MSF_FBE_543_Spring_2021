@@ -78,7 +78,6 @@ Since $\epsilon_{Y_t} < 1$, thus $(i)$ is an income inelastic good (necessity), 
 ## c. Is the amount of money spent on advertising right amount? Should the company spend more on advertising or less? Why?
 
 ```{r}
-beta_AD <- .045
 AD2013 <- 2800000  # Ad spent for 2013
 
 epsilon_AD <- beta_AD * AD2013 / Qi2013  # Advertising elasticity of demand in 2013
