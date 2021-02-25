@@ -1,0 +1,157 @@
+---
+title: "Assignment 02, Question 3"
+author: "Jeff Nguyen"
+date: "February 24, 2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, envir=.GlobalEnv)
+```
+
+**University of Southern California**  
+**Marshall School of Business**  
+**FBE 543 Forecasting and Risk Analysis**
+  
+Student Name: Ngoc Son (Jeff) Nguyen  
+
+
+# **Question 3**
+  
+We have the log linear regression equation:
+  
+\begin{equation}
+  \begin{aligned}
+    \ln{Q_{it}} =& 915 - 1.5\ln{P_{it}} - .3\ln{P_{ct}} + .9\ln{P_{st}} + .009\ln{Y_t} + .045\ln{AD_t}  \\
+  \end{aligned}
+\end{equation}
+  
+```{r}
+beta_Pi <- -1.5
+beta_Pc <- -.3
+beta_Ps <- .9
+beta_Y <- .009
+beta_AD <- .045
+Pi2013 <- 200  # Average market price of (i) in 2013
+Qi2013 <- 55000 # Average quantity demanded of (i) in 2013
+Y2013 <- 120000 # Average income in 2013
+```
+
+## a. With respect to price, what kind of good is $(i)$. For a high demand season, should the company increase the price or decrease it?
+  
+To determine what kind of good is $(i)$ w.r.t. $P_{it}$, we find the price elasticity of ${i}$ as follow:
+    
+```{r}
+epsilon_Pi <- beta_Pi * Pi2013 / Qi2013  # Price elasticity of (i)
+```
+  
+\begin{equation}
+  \begin{aligned}
+    \epsilon_{P_{it}} =& \hat{\beta}_{P_{it}} \frac{\overline{P}}{\overline{Q_i}}  \\
+                      =& (`r beta_Pi`) \frac{`r Pi2013`}{`r Qi2013`}  \\
+                      =& `r epsilon_Pi`  \\
+  \end{aligned}
+\end{equation}
+  
+Since $|\epsilon_{P_{it}}| < 1$, $(i)$ is a price inelastic (necessity) good, i.e. price increases leads to total revenue increases. Thus, for a high demand season, the company should increase the price to increase their total revenue.
+  
+## b. With respect to income, what kind of good is $(i)$.
+  
+To determine what kind of good is $(i)$ w.r.t. $Y_{t}$, we find the income elasticity of ${i}$ as follow:
+    
+```{r}
+epsilon_Y <- beta_Y * Y2013 / Qi2013  # Income elasticity of (i)
+```
+  
+\begin{equation}
+  \begin{aligned}
+    \epsilon_{Y_t} =& \hat{\beta}_{Y_t} \frac{\overline{Y}}{\overline{Q_i}}  \\
+                      =& (`r beta_Y`) \frac{`r Y2013`}{`r Qi2013`}  \\
+                      =& `r epsilon_Y`  \\
+  \end{aligned}
+\end{equation}
+  
+Since $\epsilon_{Y_t} < 1$, thus $(i)$ is an income inelastic good (necessity), i.e. a jump in income is less than proportionate than the increase in the quantity demanded.
+  
+## c. Is the amount of money spent on advertising right amount? Should the company spend more on advertising or less? Why?
+
+```{r}
+beta_AD <- .045
+AD2013 <- 2800000  # Ad spent for 2013
+
+epsilon_AD <- beta_AD * AD2013 / Qi2013  # Advertising elasticity of demand in 2013
+```
+  
+We have the advertising elasticity of demand as follow:
+  
+\begin{equation}
+  \begin{aligned}
+    \epsilon_{AD_t} =& \hat{\beta}_{AD_t} \frac{\overline{AD}}{\overline{Q_i}}  \\
+                      =& (`r beta_AD`) \frac{`r AD2013`}{`r Qi2013`}  \\
+                      =& `r epsilon_AD`  \\
+  \end{aligned}
+\end{equation}
+  
+We can see that quantity demanded of $(i)$ is advertising elastic so the company should spend more as it would lead to revenue increases.
+  
+The optimum advertising amount in 2013 is:
+  
+```{r}
+AD_2013Optimum <- Pi2013 * Qi2013 * epsilon_AD / abs(epsilon_Pi)
+```
+  
+\begin{equation}
+  \begin{aligned}
+    AD_{2013}^* =& P_{it} Q_{it} \frac{\epsilon_{AD}}{|\epsilon_{P_{it}}|}  \\
+              =& (`r Pi2013`) (`r Qi2013`) \frac{(`r epsilon_AD`)}{|(`r epsilon_Pi`)|}  \\
+              =& `r AD_2013Optimum`  \\
+  \end{aligned}
+\end{equation}
+  
+## d. What is your forecast of the quantity demanded for 2014?
+  
+```{r}
+# Changes from 2013 to 2014
+delta_Pi <- .05  # Price of good (i) increases 5%
+delta_Y <- .04  # Income growth 4 %
+delta_Ps <- .1  # 10% tax add on to price of substitute good
+
+delta_Qi <- beta_Pi*delta_Pi + beta_Ps*delta_Ps + beta_Y*delta_Y
+```
+  
+We have the forecast $\%$ change in $Q_i$ for 2014 as follow:
+  
+\begin{equation}
+  \begin{aligned}
+    \%\Delta Q_i =& \hat{\beta}_{P_{it}} \Delta P_{it} + \hat{\beta}_{P_{st}} \Delta P_{st} + \hat{\beta}_{Y_t} \Delta Y_t  \\
+                 =& (`r beta_Pi`)(`r delta_Pi`) + (`r beta_Ps`)(`r delta_Ps`) + (`r beta_Y`)(`r delta_Y`)  \\
+                 =& `r delta_Qi`  \\
+                 =& `r delta_Qi*100` \%
+  \end{aligned}
+\end{equation}
+  
+```{r}
+Qi2014 <- Qi2013*(1+delta_Qi)
+```
+  
+Thus, the quantity demanded of $(i)$ increases by $`r delta_Qi*100` \%$ from 2013 to 2014 or $`r Qi2014`$.
+  
+## e. What is the optimum amount of advertiising spending for 2014?
+  
+The optimum advertising amount in 2013 is:
+  
+```{r}
+Pi2014 <- Pi2013 * (1+delta_Pi)  # Price of (i) in 2014
+
+AD_2014Optimum <- Pi2014 * Qi2014 * epsilon_AD / abs(epsilon_Pi)
+```
+  
+\begin{equation}
+  \begin{aligned}
+    AD_{2014}^* =& P_{it} Q_{it} \frac{\epsilon_{AD}}{|\epsilon_{P_{it}}|}  \\
+              =& (`r Pi2014`) (`r Qi2014`) \frac{(`r epsilon_AD`)}{|(`r epsilon_Pi`)|}  \\
+              =& `r AD_2014Optimum`  \\
+  \end{aligned}
+\end{equation}
