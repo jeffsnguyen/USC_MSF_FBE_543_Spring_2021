@@ -41,4 +41,15 @@ adjGSPC <- GSPC$GSPC.Adjusted
 ```
   
 ## a. Graph your AAPL against time (scatter diagram). Comment on the existence of time trend, seasonal trend, cyclical trend, autocorrelation, randomness, structural breaks, and outliers.  
-
+  
+```{r}
+plot(adjAAPL, main="AAPL")
+```
+  
+**Time Trend** AAPL displays time trend, as price increases over time.  
+**Seasonal Trend** AAPL displays seasonal trend with up and down spikes in price daily.  
+**Cyclical Trend** AAPL is affected by business cycle of peaks and troughs.  
+**Autocorrelation** AAPL rises for some times and they rise and vice versa.  
+**Randomness** Price of AAPL is unpredicatable via inspection.  
+**Structural Breaks** AAPL does not experience any structural break during this time frame as price always recover quickly.  
+**Outliers** AAPL price has several outliers during this period (Jan 2019, March 2020) where price fell more than 30% and recovered.  
