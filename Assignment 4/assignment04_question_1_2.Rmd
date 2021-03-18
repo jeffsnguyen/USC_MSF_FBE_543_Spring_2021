@@ -235,3 +235,21 @@ hist(rGSPC,
 We can observe that compared to AAPL, S&P 500 resembles, but not necessary is, a normal distribution with fairly even tails.  
 
 ## g. Test whether the distributions of returns to AAP and returns to S&P 500 are normal or not.  
+
+We run Shapiro-Wilk normality test on AAPL monthly returns:
+
+```{r}
+shapiro.test(as.vector(rAAPL))
+```
+  
+We can see that p-value > .05 implying that the distribution of AAPL monthly returns is not significantly different from a normal distribution, and thus, we can assume normality.  
+
+Similar with S&P 500:  
+
+```{r}
+shapiro.test(as.vector(rGSPC))
+```
+  
+Similarly, we can see that the distribution of S&P 500 monthly returns is not significantly different from a normal distribution, and thus, we can assume normality.  
+
+## h. Fit $MA(5)$ and $MA(9)$ on AAPL data and compare the accuracy criterion of the fits.
