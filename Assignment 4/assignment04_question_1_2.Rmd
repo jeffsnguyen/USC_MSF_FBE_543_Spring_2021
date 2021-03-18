@@ -191,3 +191,47 @@ legend("topleft",
 **Remarks**  
 For the most part, both monthly returns of AAPL and S&P 500 follow each other in lock-step saved for a few periods where AAPL monthly returns become more volatile. S&P 500 experienced larger draw down in returns compared to AAPL in the March 2020 "pandemic sell-off".  
   
+## e. Compare the risk and return of AAPL with the risk and return to S&P 500.  
+
+Calculations:  
+```{r}
+# Calculate statistics
+AAPL_meanR <- mean(rAAPL, na.rm=TRUE)
+GSPC_meanR <- mean(rGSPC, na.rm=TRUE)
+
+AAPL_riskR <- sqrt(var(rAAPL, na.rm=TRUE))
+GSPC_riskR <- sqrt(var(rGSPC, na.rm=TRUE))
+```
+  
+**Comparison:**
+  
+Underlying | Expected Monthly Returns | Risk
+---        | ---                      | ---               
+S&P 500    | `r GSPC_meanR`           | `r GSPC_riskR`
+AAPL       | `r AAPL_meanR`           | `r AAPL_riskR`
+  
+We can observe AAPL has higher expected monthly returns but also higher risk than the S&P 500.  
+
+## f. Plot histograms of returns to AAPL and returns to S&P 500. Comment on the distribution of the returns.  
+
+```{r}
+hist(rAAPL, 
+     main='Monthly Returns for AAPL', 
+     xlab='Returns', 
+     col='blue',
+    )
+```
+  
+We can observe that AAPL has a fat left tail (to the downside).  
+
+```{r}
+hist(rGSPC, 
+     main='Monthly Returns for S&P 500', 
+     xlab='Returns', 
+     col='red',
+    )
+```
+  
+We can observe that compared to AAPL, S&P 500 resembles, but not necessary is, a normal distribution with fairly even tails.  
+
+## g. Test whether the distributions of returns to AAP and returns to S&P 500 are normal or not.  
