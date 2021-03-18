@@ -1,0 +1,44 @@
+---
+title: "Assignment 04, Question 1&2"
+author: "Jeff Nguyen"
+date: "March 17, 2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, envir=.GlobalEnv)
+```
+
+**University of Southern California**  
+**Marshall School of Business**  
+**FBE 543 Forecasting and Risk Analysis**
+  
+Student Name: Ngoc Son (Jeff) Nguyen  
+
+
+# **Question 1**
+  
+Downloading data:  
+```{r}
+library(quantmod)
+
+# Set start date and end date of data
+start_date <- "2018-01-01"
+end_date <- "2021-03-17"
+
+# Get data
+getSymbols("AAPL", src = "yahoo", from = start_date, to = end_date)
+getSymbols("^GSPC", src = "yahoo", , from = start_date, to = end_date) # S&P 500
+
+# Adjusted Prices
+adjAAPL <- AAPL$AAPL.Adjusted
+adjGSPC <- GSPC$GSPC.Adjusted
+# Get adjusted returns data
+#rAAPL <- diff(log(to.monthly(AAPL)$AAPL.Adjusted))
+#rGSPC <- diff(log(to.monthly(GSPC)$GSPC.Adjusted))
+```
+  
+## a. Graph your AAPL against time (scatter diagram). Comment on the existence of time trend, seasonal trend, cyclical trend, autocorrelation, randomness, structural breaks, and outliers.  
+
