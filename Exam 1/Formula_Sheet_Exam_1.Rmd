@@ -377,7 +377,7 @@ Do an F test. Failed to reject null meaning X does not cause Y. Reject null mean
 #### Second Regression:  
 $X_t = \lambda_0 + \lambda_1 X_{t-1} + \lambda_2 X_{t-2} + ... + \gamma_1 Y_{t-1} + \gamma_2 Y_{t-2} + ... + \epsilon$  
 
-##### Hyopthesis:  
+##### Hypothesis:  
 H_0: $\gamma_1 = \gamma_2 = \gamma_3 =... = 0$  
 H_a: At least one $\gamma$ is different from 0.  
 
@@ -386,7 +386,9 @@ Do an F test. Failed to reject null meaning Y does not cause X. Reject null mean
 #### Combination of results from 2 regression:  
 
 If X cause Y without Y cause X: X Granger-cause Y.  
-If X cause Y AND Y cause X: either there is 2-way causality or there is no causality. Then we have to do a qualitative assessment: 1) If the variables are economic, there is likely 2-way causality. 2) If the variables are financials, there is likely no causality.  
+If X cause Y AND Y cause X: either there is 2-way causality or there is no causality. Then we have to do a qualitative assessment:  
+1) If the variables are economic, there is likely 2-way causality.   
+2) If the variables are financials, there is likely no causality.  
 
 
 ## Third Assumptions: $E[\epsilon_t \epsilon_{t-1}] = 0$ Serial Correlation or Autocorrelation  
@@ -438,7 +440,7 @@ $\epsilon_t = \rho_1 \epsilon_{t-1} + \rho \epsilon_{t-2} + \epsilon_t$
 H_0: no first order autocorrelation  
 H_a: first order autocorrelation exists  
 
-Assumptions are: 1) the error are normally distributed with a mean of 0 and the errors are stationary.  
+Assumptions are: the error are normally distributed with a mean of 0 and the errors are stationary.  
 
 ##### Test-statistics:  
 $DW = \frac{\sum_{t=2}^{T} {(\epsilon_t - \epsilon_{t-1})^2}}{\sum_{t=1}^T {\epsilon_t^2}}$  
@@ -449,6 +451,8 @@ The DW test reports a test statistic, with value from 0 to 4, where:
 - 2 is no autocorrelation.  
 - 0 to 2 is a positive autocorrelation (common in time series data)  
 - 2 to 4 is negative autocorrelation (less common in time series data)  
+
+To correct autocorrelation/ serial correlation, add the first order autoregressive term AR(1) into the model. If AR(1) doesn't fix, we can use AR(2) as well.  
 
 ## Fourth Assumptions: Homoskedacity $E[\epsilon^2] = \sigma_{\epsilon}^2 I$  
 
@@ -467,8 +471,9 @@ Regression Equation:
 $Y_i = \beta_0 + \beta_1 X_{1i} + \beta_2 X_{2i} + \epsilon_i$  
 
 #### Goldfield-Quandt Test:  
+
 1- Run regression, estimate $\epsilon_i$.  
-2- Sort $\hat{\epsilon}$ in ascending order based on $X_2$ data.
+2- Sort $\hat{\epsilon}$ in ascending order based on $X_2$ data.  
 3- Divide ordered $\hat{\epsilon}$ to 3 parts: 40%, 20% and 40%.  
 
 H_0: $\epsilon_1^2 = \epsilon_3^2$  
@@ -513,7 +518,7 @@ $\beta_3 = (3.1)$
 The absolute value of all these coefficient have to be bigger than 1.96.  
 
 $R^2=.26$ meaning only 26% explained, i.e. inconsistent.  
-$F_stat < 4$ is insignificant.  
+$F_{stat} < 4$ is insignificant.  
 
 ## Test for Multi-Collinearity:  
 
