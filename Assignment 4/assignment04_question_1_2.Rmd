@@ -35,15 +35,12 @@ getSymbols("^GSPC", src = "yahoo", , from = start_date, to = end_date) # S&P 500
 # Adjusted Prices
 adjAAPL <- AAPL$AAPL.Adjusted
 adjGSPC <- GSPC$GSPC.Adjusted
-# Get adjusted returns data
-#rAAPL <- diff(log(to.monthly(AAPL)$AAPL.Adjusted))
-#rGSPC <- diff(log(to.monthly(GSPC)$GSPC.Adjusted))
 ```
   
 ## a. Graph your AAPL against time (scatter diagram). Comment on the existence of time trend, seasonal trend, cyclical trend, autocorrelation, randomness, structural breaks, and outliers.  
   
 ```{r}
-plot(adjAAPL, main="AAPL")
+plot(adjAAPL, main="AAPL", col="Blue")
 ```
   
 **Time Trend:** AAPL displays time trend, as price increases over time.  
@@ -57,7 +54,7 @@ plot(adjAAPL, main="AAPL")
 ## b. Graph S&P 500. Comment on the existence of time trend, seasonal trend, cyclical trend, autocorrelation, randomness, structural breaks, and outliers.    
   
 ```{r}
-plot(adjGSPC, main="S&P500")
+plot(adjGSPC, main="S&P500", col="Red")
 ```
   
 **Time Trend:** S&P 500 displays time trend, as price increases over time.  
@@ -71,5 +68,126 @@ plot(adjGSPC, main="S&P500")
 ## c. Graph your variable against the market index S&P 500 on x-y axis. Comment on the behavior and the relationship between the two variables.  
   
 ```{r}
-plot(adjGSPC)
+# Initialize xts objects contain adjusted price for S&P 500 and AAPL and merge
+gspc_xts <- as.xts(GSPC[,"GSPC.Adjusted"])
+aapl_xts <- as.xts(AAPL[,"AAPL.Adjusted"])
+price_compare <- merge.xts(gspc_xts, aapl_xts)
+
+# Graph monthly AAPL and monthly S&P500 on one coordinate system
+# Plot S&P 500
+plot(as.zoo(price_compare[, "GSPC.Adjusted"]), screens = 1, 
+     main = "S&P 500 and AAPL Adjusted Price Overlay", 
+     xlab = "Year", ylab = "Price", col = "Red")
+
+# Keep working on the same plot
+par(new = TRUE)
+
+# Plot AAPL and suppress axis value
+plot(as.zoo(price_compare[, "AAPL.Adjusted"]), 
+     screens = 1, 
+     xaxt = "n", yaxt = "n", 
+     xlab = "", ylab = "", 
+     col = "Blue")
+
+# Add right-handed axis to display AAPL price
+axis(4)
+
+# Add legend
+legend("topleft", 
+       c("S&P 500 Adjusted Price", "AAPL Adjusted Price"), 
+       lty = 1:1, 
+       cex = 0.75, 
+       fill = c("red", "blue"))
 ```
+  
+**Remarks**  
+**1. Seasonal Trend:**
+Both display similar seasonal trend with up and down spikes in price days after days.  
+**2. Cyclical Trend:**  
+Both is affected by business cycle with similar peaks and troughs. The S&P 500 has more prominent troughs compared to that of AAPL. Especially during the period of March 2020 with the COVID-19 lockdowns started rolling across the countries.  
+**3. Auto-correlation:**  
+Both behave similar in this regard where both rises for some times when they rise and vice versa.  
+**4. Randomness:**  
+Price of both is unpredictable via inspection.  
+**5. Time:**  
+Both follows similar time trend.  
+**6. Structural Break:**  
+Both does not experience any structural break during this time frame. During the COVID-19 March sell-off, price recovered quickly in a V-shaped fashion.  
+**7. Outliers:**  
+SPY looks to have several outliers corresponded to the March 2020 sell-off when the indicies retreated 30% in a short period of a few weeks before quickly recovered.  
+  
+## d. Repeat a to c for the monthly returns to AAPL and S&P 500.  
+  
+Adjusting data to monthly:  
+```{r}
+# Get adjusted returns data
+rAAPL <- diff(log(to.monthly(AAPL)$AAPL.Adjusted))
+rGSPC <- diff(log(to.monthly(GSPC)$GSPC.Adjusted))
+```
+  
+### d.a. Graph your AAPL monthly returns against time (scatter diagram). Comment on the existence of time trend, seasonal trend, cyclical trend, autocorrelation, randomness, structural breaks, and outliers.  
+  
+```{r}
+plot(rAAPL, main="AAPL Monthly Returns", col="Blue")
+```
+  
+**Time Trend:** We can not observe a clear time trend here. 
+**Seasonal Trend:** AAPL monthly returns displays seasonal trend with up and down spikes.  
+**Cyclical Trend:** We cannot observe a clear cyclical trend that coincides with business cycles here even though there are peaks and troughs.  
+**Autocorrelation:** We cannot observe autocorrelation characteristics.  
+**Randomness:** AAPL monthly returns can be observed to be unpredictable.   
+**Structural Breaks:** We cannot observe any structural break here.  
+**Outliers:** AAPl monthly returns have several clear outliers during this period.  
+  
+### d.b. Graph S&P 500. Comment on the existence of time trend, seasonal trend, cyclical trend, autocorrelation, randomness, structural breaks, and outliers.    
+  
+```{r}
+plot(rGSPC, main="S&P500", col="Red")
+```
+  
+**Time Trend:** We can not observe a clear time trend here. 
+**Seasonal Trend:** S&P 500 monthly returns displays seasonal trend with up and down spikes.  
+**Cyclical Trend:** We cannot observe a clear cyclical trend that coincides with business cycles here even though there are peaks and troughs.  
+**Autocorrelation:** We cannot observe autocorrelation characteristics.  
+**Randomness:** S&P 500 monthly returns can be observed to be unpredictable.   
+**Structural Breaks:** We cannot observe any structural break here.  
+**Outliers:** S&P 500 monthly returns have several clear outliers during this period.  
+
+### d.c. Graph your variable against the market index S&P 500 on x-y axis. Comment on the behavior and the relationship between the two variables.  
+  
+```{r}
+# Initialize xts objects contain adjusted price for S&P 500 and AAPL and merge
+rgspc_xts <- as.xts(rGSPC[,"GSPC.Adjusted"])
+raapl_xts <- as.xts(rAAPL[,"AAPL.Adjusted"])
+monthlyR_compare <- merge.xts(rgspc_xts, raapl_xts)
+
+# Graph monthly AAPL and monthly S&P500 on one coordinate system
+# Plot S&P 500
+plot(as.zoo(monthlyR_compare[, "GSPC.Adjusted"]), screens = 1, 
+     main = "S&P 500 and AAPL Monthly Returns Overlay", 
+     xlab = "Year", ylab = "Monthly Returns", col = "Red")
+
+# Keep working on the same plot
+par(new = TRUE)
+
+# Plot AAPL and suppress axis value
+plot(as.zoo(monthlyR_compare[, "AAPL.Adjusted"]), 
+     screens = 1, 
+     xaxt = "n", yaxt = "n", 
+     xlab = "", ylab = "", 
+     col = "Blue")
+
+# Add right-handed axis to display AAPL price
+axis(4)
+
+# Add legend
+legend("topleft", 
+       c("S&P 500 Monthly Returns", "AAPL Monthly Returns"), 
+       lty = 1:1, 
+       cex = 0.75, 
+       fill = c("red", "blue"))
+```
+  
+**Remarks**  
+For the most part, both monthly returns of AAPL and S&P 500 follow each other in lock-step saved for a few periods where AAPL monthly returns become more volatile. S&P 500 experienced larger draw down in returns compared to AAPL in the March 2020 "pandemic sell-off".  
+  
