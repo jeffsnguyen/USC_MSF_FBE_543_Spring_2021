@@ -252,4 +252,166 @@ shapiro.test(as.vector(rGSPC))
   
 Similarly, we can see that the distribution of S&P 500 monthly returns is not significantly different from a normal distribution, and thus, we can assume normality.  
 
-## h. Fit $MA(5)$ and $MA(9)$ on AAPL data and compare the accuracy criterion of the fits.
+## h. Fit $MA(5)$ and $MA(9)$ on AAPL data and compare the accuracy criterion of the fits.  
+  
+Fitting $MA(5)$:  
+
+```{r}
+library(forecast)
+
+ma5 <- ma(adjAAPL, order=5)  # Get MA5 in ts format
+ma9 <- ma(adjAAPL, order=9)  # Get MA9 in ts format
+ma5 <- as.xts(ma5)  # Convert to xts
+ma9 <- as.xts(ma9)  # Convert to xts
+index(ma5) <- index(adjAAPL)  # Replace MA5 index with adjAAPL index
+index(ma9) <- index(adjAAPL)  # Replace MA9 index with adjAAPL index
+adjAAPL_wMA <- na.omit(merge.xts(adjAAPL, ma5, ma9))  # Merge adjAAPL and its MA5 to a single object
+
+plot(as.zoo(adjAAPL_wMA[, "AAPL.Adjusted"]), screens = 1, 
+     main = "AAPL and its 5 day MA Overlay", 
+     xlab = "Year", ylab = "Price", col = "blue")
+
+par(new=TRUE)
+
+# Plot MA5 and suppress axis value
+plot(as.zoo(adjAAPL_wMA[, "ma5"]), 
+     screens = 1,
+     lty=2,
+     xaxt = "n", yaxt = "n", 
+     xlab = "", ylab = "", 
+     col = "orange")
+
+par(new=TRUE)
+
+# Plot MA9 and suppress axis value
+plot(as.zoo(adjAAPL_wMA[, "ma9"]), 
+     screens = 1,
+     lty=2,
+     xaxt = "n", yaxt = "n", 
+     xlab = "", ylab = "", 
+     col = "green")
+
+# Add legend
+legend("topleft", 
+       c("AAPL Daily Price", "AAPL Daily MA5", "AAPL Daily MA9"), 
+       lty=c(1,2,2),
+       cex = 0.75, 
+       fill = c("blue", "orange", "green"))
+```
+  
+We can observe that both MAs smooth out the actual price graph and remove some of its sharp movements.  
+  
+## i. Fit WMA(5) on AAPL data and compare its accuracy of the fit with MA(5) and MA(9)  
+  
+Add WMA(5)  
+```{r}
+library(pracma)
+
+wma5 <- movavg(adjAAPL, n=5, type="w")  # Calculate WMA5
+adjAAPL_wWMA <- merge.xts(adjAAPL, wma5)  # Merge WMA5 to AAPL daily price xts object
+
+plot(as.zoo(adjAAPL_wWMA[, "AAPL.Adjusted"]), screens = 1, 
+     main = "AAPL and its 5 day WMA Overlay", 
+     xlab = "Year", ylab = "Price", col = "blue")
+
+par(new=TRUE)
+
+# Plot MA5 and suppress axis value
+plot(as.zoo(adjAAPL_wWMA[, "wma5"]), 
+     screens = 1,
+     lty=2,
+     xaxt = "n", yaxt = "n", 
+     xlab = "", ylab = "", 
+     col = "orange")
+
+# Add legend
+legend("topleft", 
+       c("AAPL Daily Price", "AAPL Daily WMA5"), 
+       lty=c(1,2),
+       cex = 0.75, 
+       fill = c("blue", "orange"))
+```
+  
+We can abserve that WMA5 fits daily price a lot better than MA5 and MA9.
+  
+## j. Fit simple ES to AAPL data and compare its accuracy of the fit with MA(5) and MA(9).  
+
+Simple ES  
+```{r}
+#Simple Exponential Smoothing with 1 period ahead
+fit1 <- ses(adjAAPL, alpha=0.2, initial="simple", h=1)
+es <- as.xts(fitted(fit1))
+index(es) <- index(adjAAPL)
+adjAAPL_wES <- merge.xts(adjAAPL, es)  # Merge ES to AAPL daily price xts object
+
+plot(as.zoo(adjAAPL_wES[, "AAPL.Adjusted"]), screens = 1, 
+     main = "AAPL and its Exponential Smoothing Overlay", 
+     xlab = "Year", ylab = "Price", col = "blue")
+
+par(new=TRUE)
+
+# Plot ES and suppress axis value
+plot(as.zoo(adjAAPL_wES[, "es"]), 
+     screens = 1,
+     lty=2,
+     xaxt = "n", yaxt = "n", 
+     xlab = "", ylab = "", 
+     col = "chocolate")
+
+# Add legend
+legend("topleft", 
+       c("AAPL Daily Price", "AAPL Daily ES"), 
+       lty=c(1,2),
+       cex = 0.75, 
+       fill = c("blue", "chocolate"))
+```
+  
+We can observe that ES5 also fit daily price quite well, but poorer than WMA5.
+  
+## k. Do a one-period ahead forecasting of AAPL price for using simple ES model.  
+  
+```{r}
+fit1
+```
+  
+## Fit Holt-Winter ES to AAPL data and compare its accuracy of the fit with MA(5) and MA(9).  
+
+
+```{r}
+#Simple Exponential Smoothing with 1 period ahead
+holt1 <- holt(adjAAPL, alpha=0.8, beta=0.2, initial="simple", exponential=TRUE, h=3) 
+holt1ES <- as.xts(fitted(holt1))
+index(holt1ES) <- index(adjAAPL)
+adjAAPL_wHoltES <- merge.xts(adjAAPL, holt1ES)  # Merge Holt ES to AAPL daily price xts object
+
+plot(as.zoo(adjAAPL_wHoltES[, "AAPL.Adjusted"]), screens = 1, 
+     main = "AAPL and its Holt-Winters ES Overlay", 
+     xlab = "Year", ylab = "Price", col = "blue")
+
+par(new=TRUE)
+
+# Plot ES and suppress axis value
+plot(as.zoo(adjAAPL_wHoltES[, "holt1ES"]), 
+     screens = 1,
+     lty=2,
+     xaxt = "n", yaxt = "n", 
+     xlab = "", ylab = "", 
+     col = "chocolate")
+
+# Add legend
+legend("topleft", 
+       c("AAPL Daily Price", "AAPL Daily HoltES"), 
+       lty=c(1,2),
+       cex = 0.75, 
+       fill = c("blue", "chocolate"))
+```
+  
+We can oberve that Holt-ES model provides the best fit thus far.  
+
+## m.Do a 3-period ahead forecasting of AAPL price using Holt-Winter ES model.  
+
+```{r}
+holt1
+```
+  
+# Question 2
