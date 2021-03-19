@@ -414,4 +414,52 @@ We can oberve that Holt-ES model provides the best fit thus far.
 holt1
 ```
   
-# Question 2
+# Question 2  
+  
+## a. Given that the damping effect, $\alpha = .05$, do next two-periods ES forecast of the prices for Nov and Dec of 2014.  
+
+We have the general exponential smoothing model:  
+\begin{equation}
+  \begin{aligned}
+    Y_{t+1} =& Y_t^F + \alpha (Y_t - Y_t^F)  \\
+  \end{aligned}
+\end{equation}
+  
+
+Plug in:
+
+```{r}
+y_Nov14F <- 101.62 + .05*(97.67 - 101.62)
+```
+\begin{equation}
+  \begin{aligned}
+    Y_{Nov14}^F =& Y_{t+1}  \\
+                =& Y_t^F + \alpha (Y_t - Y_t^F)  \\
+                =& Y_{Oct14}^F + \alpha (Y_{Oct14} - Y_{Oct14}^F)  \\
+                =& 101.62 + .05*(97.67 - 101.62)  \\
+                =& `r y_Nov14F`  \\
+  \end{aligned}
+\end{equation}
+  
+\begin{equation}
+  \begin{aligned}
+    Y_{Dec14}^F =& Y_{t+1}  \\
+                =& Y_t^F + \alpha (Y_t - Y_t^F)  \\
+                =& Y_{Nov14}^F + \alpha (Y_{Nov14} - Y_{Nov14}^F)  \\
+  \end{aligned}
+\end{equation}
+  
+## If SE of the forecast is 1.8, write 95% confidence interval for the forecast of November 2014.  
+  
+```{r}
+epsilon_F <- 1.8
+```
+95% confidence interval:  
+  
+\begin{equation}
+  \begin{aligned}
+    Y_{Nov14}^F - 1.96.\epsilon_F \leqslant & Y_{Nov14} \leqslant Y_{Nov14}^F - 1.96.\epsilon_F  \\
+    `r y_Nov14F` - 1.96.\epsilon_F \leqslant & Y_{Nov14} \leqslant `r y_Nov14F`` - 1.96.\epsilon_F  \\
+    `r y_Nov14F - 1.96*epsilon_F` \leqslant & Y_{Nov14} \leqslant `r y_Nov14F + 1.96*epsilon_F`  \\
+  \end{aligned}
+\end{equation}
