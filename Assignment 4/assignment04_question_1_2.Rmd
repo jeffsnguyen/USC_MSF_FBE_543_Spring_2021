@@ -464,8 +464,8 @@ epsilon_F <- 1.8
   
 \begin{equation}
   \begin{aligned}
-    Y_{Nov14}^F - 1.96.\epsilon_F \leqslant & Y_{Nov14} \leqslant Y_{Nov14}^F - 1.96.\epsilon_F  \\
-    `r y_Nov14F` - 1.96.\epsilon_F \leqslant & Y_{Nov14} \leqslant `r y_Nov14F`` - 1.96.\epsilon_F  \\
+    Y_{Nov14}^F - 1.96.\epsilon_F \leqslant & Y_{Nov14} \leqslant Y_{Nov14}^F + 1.96.\epsilon_F  \\
+    `r y_Nov14F` - 1.96.\epsilon_F \leqslant & Y_{Nov14} \leqslant `r y_Nov14F`` + 1.96.\epsilon_F  \\
     `r y_Nov14F - 1.96*epsilon_F` \leqslant & Y_{Nov14} \leqslant `r y_Nov14F + 1.96*epsilon_F`  \\
   \end{aligned}
 \end{equation}
