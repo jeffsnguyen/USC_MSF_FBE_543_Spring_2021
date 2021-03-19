@@ -46,7 +46,7 @@ plot(adjAAPL, main="AAPL", col="Blue")
 **Time Trend:** AAPL displays time trend, as price increases over time.  
 **Seasonal Trend:** AAPL displays seasonal trend with up and down spikes in price daily.  
 **Cyclical Trend:** AAPL is affected by business cycle of peaks and troughs.  
-**Autocorrelation:** AAPL rises for some times and they rise and vice versa.  
+**Autocorrelation:** AAPL rises for some times when they rise and vice versa.  
 **Randomness:** Price of AAPL is unpredictable via inspection.  
 **Structural Breaks:** AAPL does not experience any structural break during this time frame as price always recover quickly.  
 **Outliers:** AAPL price has several outliers during this period (Jan 2019, March 2020) where price fell more than 30% and recovered.  
@@ -60,7 +60,7 @@ plot(adjGSPC, main="S&P500", col="Red")
 **Time Trend:** S&P 500 displays time trend, as price increases over time.  
 **Seasonal Trend:** S&P 500 displays seasonal trend with up and down spikes in price daily.  
 **Cyclical Trend:** S&P 500 is affected by business cycle of peaks and troughs.  
-**Autocorrelation:** S&P 500 rises for some times and they rise and vice versa.  
+**Autocorrelation:** S&P 500 rises for some times when they rise and vice versa.  
 **Randomness:** Price of S&P 500 is unpredictable via inspection.  
 **Structural Breaks:** S&P 500 does not experience any structural break during this time frame as price always recover quickly.  
 **Outliers:** S&P 500 price has several outliers during this period (Jan 2019, March 2020) where price fell more than 30% and recovered.  
@@ -265,7 +265,9 @@ ma5 <- as.xts(ma5)  # Convert to xts
 ma9 <- as.xts(ma9)  # Convert to xts
 index(ma5) <- index(adjAAPL)  # Replace MA5 index with adjAAPL index
 index(ma9) <- index(adjAAPL)  # Replace MA9 index with adjAAPL index
-adjAAPL_wMA <- na.omit(merge.xts(adjAAPL, ma5, ma9))  # Merge adjAAPL and its MA5 to a single object
+
+# Merge adjAAPL and its MA5 to a single object
+adjAAPL_wMA <- na.omit(merge.xts(adjAAPL, ma5, ma9))
 
 plot(as.zoo(adjAAPL_wMA[, "AAPL.Adjusted"]), screens = 1, 
      main = "AAPL and its 5 day MA Overlay", 
@@ -374,7 +376,7 @@ We can observe that ES5 also fit daily price quite well, but poorer than WMA5.
 fit1
 ```
   
-## Fit Holt-Winter ES to AAPL data and compare its accuracy of the fit with MA(5) and MA(9).  
+## l. Fit Holt-Winter ES to AAPL data and compare its accuracy of the fit with MA(5) and MA(9).  
 
 
 ```{r}
@@ -382,7 +384,9 @@ fit1
 holt1 <- holt(adjAAPL, alpha=0.8, beta=0.2, initial="simple", exponential=TRUE, h=3) 
 holt1ES <- as.xts(fitted(holt1))
 index(holt1ES) <- index(adjAAPL)
-adjAAPL_wHoltES <- merge.xts(adjAAPL, holt1ES)  # Merge Holt ES to AAPL daily price xts object
+
+# Merge Holt ES to AAPL daily price xts object
+adjAAPL_wHoltES <- merge.xts(adjAAPL, holt1ES)
 
 plot(as.zoo(adjAAPL_wHoltES[, "AAPL.Adjusted"]), screens = 1, 
      main = "AAPL and its Holt-Winters ES Overlay", 
@@ -449,7 +453,9 @@ y_Nov14F <- 101.62 + .05*(97.67 - 101.62)
   \end{aligned}
 \end{equation}
   
-## If SE of the forecast is 1.8, write 95% confidence interval for the forecast of November 2014.  
+**Remarks** For the period of December 2014, it is not possible to make inference based on existing data as the actual closing price for November 2014 $Y_{Nov14}$ is required, i.e. it is not possible doing 2-period ahead forecasting using Exponential Smoothing.  
+  
+## b. If SE of the forecast is 1.8, write 95% confidence interval for the forecast of November 2014.  
   
 ```{r}
 epsilon_F <- 1.8
