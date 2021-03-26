@@ -1,0 +1,150 @@
+---
+title: "Assignment 04, Question 3&4"
+author: "Jeff Nguyen"
+date: "March 26, 2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, envir=.GlobalEnv)
+```
+
+**University of Southern California**  
+**Marshall School of Business**  
+**FBE 543 Forecasting and Risk Analysis**
+  
+Student Name: Ngoc Son (Jeff) Nguyen  
+
+
+# **Question 3**
+  
+## a.  
+  
+\begin{equation}
+  \begin{aligned}
+    Y_t = 2.5 + .35Y_{t-1} + \epsilon_t  \\
+  \end{aligned}
+\end{equation}
+
+- **ARIMA model:** $ARIMA(1,0,0)$.  
+- **Stationarity:** Stationary as $\sum_{i=1}^n |\alpha_i| = .35 < 1$.  
+- **Invertibility:** N/A.  
+
+## b.  
+  
+\begin{equation}
+  \begin{aligned}
+    Y_t = 4.5 - 1.5Y_{t-1} + \epsilon_t - .5\epsilon_{t-1}  \\
+  \end{aligned}
+\end{equation}
+  
+- **ARIMA model:** $ARIMA(1,0,1)$.  
+- **Stationarity:** Non-Stationary as $\sum_{i=1}^n |\alpha_i| = |1.5| > 1$.  
+- **Invertibility:** Invertible as $\sum_{i=1}^n \beta_i| = .5 < 1$.  
+  
+## c.  
+  
+\begin{equation}
+  \begin{aligned}
+    Y_t = 1.2 - .75Y_{t-1} + .3Y_{t-2} + \epsilon_t  \\
+  \end{aligned}
+\end{equation}
+  
+- **ARIMA model:** $ARIMA(2,0,0)$.  
+- **Stationarity:** Non-Stationary as $\sum_{i=1}^n |\alpha_i| = |-.75| + |.3| = `r .75 + .3` > 1$.  
+- **Invertibility:** N/A.  
+  
+  
+## d.  
+  
+\begin{equation}
+  \begin{aligned}
+    Y_t = 2.5 - .95Y_{t-1} + \epsilon_t - .5\epsilon_{t-1} - .2\epsilon{t-2}  \\
+  \end{aligned}
+\end{equation}
+  
+- **ARIMA model:** $ARIMA(1,0,2)$.  
+- **Stationarity:** Stationary as $\sum_{i=1}^n |\alpha_i| = `r .95` < 1$.  
+- **Invertibility:** Invertible as $\sum_{i=1}^n |\beta_i| = |-.5| + |-.2| = `r .5 + .2` < 1$.   
+  
+  
+## e.  
+  
+\begin{equation}
+  \begin{aligned}
+    Y_t = .52 - 1.2Y_{t-1} + \epsilon_t + .2\epsilon_{t-1}  \\
+  \end{aligned}
+\end{equation}
+  
+- **ARIMA model:** $ARIMA(1,0,1)$.  
+- **Stationarity:** Non-Stationary as $\sum_{i=1}^n |\alpha_i| = `r 1.2` > 1$.  
+- **Invertibility:** Invertible as $\sum_{i=1}^n |\beta_i| = |.2| = `r .2` < 1$.   
+  
+## f.  
+  
+\begin{equation}
+  \begin{aligned}
+    DY_t = 1.2DY_{t-1} + \epsilon_t  \\
+  \end{aligned}
+\end{equation}
+  
+- **ARIMA model:** $ARIMA(1,1,0)$.  
+- **Stationarity:** Non-Stationary as $\sum_{i=1}^n |\alpha_i| = `r 1.2` > 1$.  
+- **Invertibility:** N/A.   
+  
+  
+## g.  
+  
+\begin{equation}
+  \begin{aligned}
+    DY_t = .42DY_{t-1} + \epsilon_t - .6\epsilon_{t-1}  \\
+  \end{aligned}
+\end{equation}
+  
+- **ARIMA model:** $ARIMA(1,1,1)$.  
+- **Stationarity:** Stationary as $\sum_{i=1}^n |\alpha_i| = `r .42` < 1$.  
+- **Invertibility:** Invertible as $\sum_{i=1}^n |\beta_i| = |-.6| = `r .6` < 1$.   
+  
+  
+## h.  
+  
+\begin{equation}
+  \begin{aligned}
+    DY_t = .62Y_{t-1} + \epsilon_t - .6\epsilon_{t-1}  \\
+  \end{aligned}
+\end{equation}
+  
+- **ARIMA model:** Incorrect model as $LHS$ and $RHS$ does not have similar order difference term.  
+- **Stationarity:** N/A.  
+- **Invertibility:** N/A.   
+  
+  
+## i.  
+  
+\begin{equation}
+  \begin{aligned}
+    Y_t = 2.5 + .95DY_{t-1} + \epsilon_t  \\
+  \end{aligned}
+\end{equation}
+  
+- **ARIMA model:** Incorrect model as $LHS$ and $RHS$ does not have similar order difference term.  
+- **Stationarity:** N/A.  
+- **Invertibility:** N/A.   
+  
+  
+## j.  
+  
+\begin{equation}
+  \begin{aligned}
+    Y_t = 1.6 + \epsilon_t - .6\epsilon_{t-1}  \\
+  \end{aligned}
+\end{equation}
+  
+- **ARIMA model:** $ARIMA(0,0,1)$.  
+- **Stationarity:** Stationary as $\sum_{i=1}^n |\beta_i| = |-.6| = `r .6` < 1$.  
+- **Invertibility:** Invertible as $\sum_{i=1}^n |\beta_i| = |-.6| = `r .6` < 1$.   
+  
+# Question 4  
+  
