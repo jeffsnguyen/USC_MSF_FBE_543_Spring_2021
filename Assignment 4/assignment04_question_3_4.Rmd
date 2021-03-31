@@ -444,4 +444,3 @@ y_3 <- f(y_2)
 | Forecast Long Run                          | Forecasted Value | 95% Confidence Interval Equation                      | 95% Confidence Interval                                              |
 |--------------------------------------------|------------------|-------------------------------------------------------|----------------------------------------------------------------------|
 | $Y_{LR} = \frac{`r alpha_0`}{`r alpha_1`}$ | $`r yLR`$        | $Y_{LR} \pm 1.96\sqrt{\frac{\sigma^2}{1-\alpha_1^2}}$ | [`r yLR - 1.96*sqrt(sigmaSq_yLR)`, `r yLR + 1.96*sqrt(sigmaSq_yLR)`] |
-  
