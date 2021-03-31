@@ -164,8 +164,10 @@ Student Name: Ngoc Son (Jeff) Nguyen
 ```{r}
 y_0 <- 2
 sigmaSq <- 1.21
+alpha_0 <- 1.6
+alpha_1 <- .75
 
-f <- function(y_t) {1.6 + .75*y_t}
+f <- function(y_t) {alpha_0 + alpha_1*y_t}
 y_1 <- f(y_0)
 y_2 <- f(y_1)
 y_3 <- f(y_2)
@@ -174,8 +176,8 @@ y_3 <- f(y_2)
 | Forecast Variable      | Forecasted Value | 95% Confidence Interval Equation                               | 95% Confidence Interval                                                                     |
 |------------------------|------------------|----------------------------------------------------------------|---------------------------------------------------------------------------------------------|
 | $Y_1^F = 1.6 + .75Y_0$ | $`r y_1`$        | $Y_{t+1}^F \pm 1.96\sqrt{\sigma^2}$                            | [`r y_1 - 1.96*sqrt(sigmaSq)`, `r y_1 + 1.96*sqrt(sigmaSq)`]                                |
-| $Y_2^F = 1.6 + .75Y_1$ | $`r y_2`$        | $Y_{t+2}^F \pm 1.96\sqrt{\sigma^2(1+\alpha^2)}$                | [`r y_2 - 1.96*sqrt(sigmaSq*(1+.75^2))`,`r y_2 + 1.96*sqrt(sigmaSq*(1+.75^2))`]             |
-| $Y_3^F = 1.6 + .75Y_2$ | $`r y_3`$        | $Y_{t+3}^F \pm 1.96\sqrt{\sigma^2(1+\alpha_1^2 + \alpha_1^4)}$ | [`r y_3 - 1.96*sqrt(sigmaSq*(1+.75^2+.75^4))`,`r y_3 + 1.96*sqrt(sigmaSq*(1+.75^2+.75^4))`] |
+| $Y_2^F = 1.6 + .75Y_1$ | $`r y_2`$        | $Y_{t+2}^F \pm 1.96\sqrt{\sigma^2(1+\alpha^2)}$                | [`r y_2 - 1.96*sqrt(sigmaSq*(1+alpha_1^2))`,`r y_2 + 1.96*sqrt(sigmaSq*(1+alpha_1^2))`]             |
+| $Y_3^F = 1.6 + .75Y_2$ | $`r y_3`$        | $Y_{t+3}^F \pm 1.96\sqrt{\sigma^2(1+\alpha_1^2 + \alpha_1^4)}$ | [`r y_3 - 1.96*sqrt(sigmaSq*(1+alpha_1^2+alpha_1^4))`,`r y_3 + 1.96*sqrt(sigmaSq*(1+alpha_1^2+alpha_1^4))`] |
   
 
 ### b)  
@@ -192,8 +194,10 @@ y_3 <- f(y_2)
 ```{r}
 y_0 <- 10
 sigmaSq <- 6.25
+alpha_0 <- 2.5
+alpha_1 <- .3
 
-f <- function(y_t) {2.5 + .3*y_t}
+f <- function(y_t) {alpha_0 + alpha_1*y_t}
 y_1 <- f(y_0)
 y_2 <- f(y_1)
 y_3 <- f(y_2)
@@ -202,8 +206,8 @@ y_3 <- f(y_2)
 | Forecast Variable      | Forecasted Value | 95% Confidence Interval Equation                               | 95% Confidence Interval                                                                     |
 |------------------------|------------------|----------------------------------------------------------------|---------------------------------------------------------------------------------------------|
 | $Y_1^F = 2.5 + .3Y_0$ | $`r y_1`$        | $Y_{t+1}^F \pm 1.96\sqrt{\sigma^2}$                            | [`r y_1 - 1.96*sqrt(sigmaSq)`, `r y_1 + 1.96*sqrt(sigmaSq)`]                                |
-| $Y_2^F = 2.5 + .3Y_1$ | $`r y_2`$        | $Y_{t+2}^F \pm 1.96\sqrt{\sigma^2(1+\alpha^2)}$                | [`r y_2 - 1.96*sqrt(sigmaSq*(1+.75^2))`,`r y_2 + 1.96*sqrt(sigmaSq*(1+.75^2))`]             |
-| $Y_3^F = 2.5 + .3Y_2$ | $`r y_3`$        | $Y_{t+3}^F \pm 1.96\sqrt{\sigma^2(1+\alpha_1^2 + \alpha_1^4)}$ | [`r y_3 - 1.96*sqrt(sigmaSq*(1+.75^2+.75^4))`,`r y_3 + 1.96*sqrt(sigmaSq*(1+.75^2+.75^4))`] |
+| $Y_2^F = 2.5 + .3Y_1$ | $`r y_2`$        | $Y_{t+2}^F \pm 1.96\sqrt{\sigma^2(1+\alpha^2)}$                | [`r y_2 - 1.96*sqrt(sigmaSq*(1+.75^2))`,`r y_2 + 1.96*sqrt(sigmaSq*(1+alpha_1^2))`]             |
+| $Y_3^F = 2.5 + .3Y_2$ | $`r y_3`$        | $Y_{t+3}^F \pm 1.96\sqrt{\sigma^2(1+\alpha_1^2 + \alpha_1^4)}$ | [`r y_3 - 1.96*sqrt(sigmaSq*(1+alpha_1^2+alpha_1^4))`,`r y_3 + 1.96*sqrt(sigmaSq*(1+alpha_1^2+alpha_1^4))`] |
   
   
 
@@ -221,8 +225,10 @@ y_3 <- f(y_2)
 ```{r}
 y_0 <- 1.5
 sigmaSq <- .49
+alpha_0 <- 1.2
+alpha_1 <- .2
 
-f <- function(y_t) {1.2 - .2*y_t}
+f <- function(y_t) {alpha_0 - alpha_1*y_t}
 y_1 <- f(y_0)
 y_2 <- f(y_1)
 y_3 <- f(y_2)
@@ -231,8 +237,8 @@ y_3 <- f(y_2)
 | Forecast Variable      | Forecasted Value | 95% Confidence Interval Equation                               | 95% Confidence Interval                                                                     |
 |------------------------|------------------|----------------------------------------------------------------|---------------------------------------------------------------------------------------------|
 | $Y_1^F = 1.2 - .2Y_0$ | $`r y_1`$        | $Y_{t+1}^F \pm 1.96\sqrt{\sigma^2}$                            | [`r y_1 - 1.96*sqrt(sigmaSq)`, `r y_1 + 1.96*sqrt(sigmaSq)`]                                |
-| $Y_2^F = 1.2 - .2Y_1$ | $`r y_2`$        | $Y_{t+2}^F \pm 1.96\sqrt{\sigma^2(1+\alpha^2)}$                | [`r y_2 - 1.96*sqrt(sigmaSq*(1+.75^2))`,`r y_2 + 1.96*sqrt(sigmaSq*(1+.75^2))`]             |
-| $Y_3^F = 1.2 - .2Y_2$ | $`r y_3`$        | $Y_{t+3}^F \pm 1.96\sqrt{\sigma^2(1+\alpha_1^2 + \alpha_1^4)}$ | [`r y_3 - 1.96*sqrt(sigmaSq*(1+.75^2+.75^4))`,`r y_3 + 1.96*sqrt(sigmaSq*(1+.75^2+.75^4))`] |
+| $Y_2^F = 1.2 - .2Y_1$ | $`r y_2`$        | $Y_{t+2}^F \pm 1.96\sqrt{\sigma^2(1+\alpha^2)}$                | [`r y_2 - 1.96*sqrt(sigmaSq*(1+alpha_1^2))`,`r y_2 + 1.96*sqrt(sigmaSq*(1+alpha_1^2))`]             |
+| $Y_3^F = 1.2 - .2Y_2$ | $`r y_3`$        | $Y_{t+3}^F \pm 1.96\sqrt{\sigma^2(1+\alpha_1^2 + \alpha_1^4)}$ | [`r y_3 - 1.96*sqrt(sigmaSq*(1+alpha_1^2+alpha_1^4))`,`r y_3 + 1.96*sqrt(sigmaSq*(1+alpha_1^2+alpha_1^4))`] |
   
   
 
@@ -250,8 +256,10 @@ y_3 <- f(y_2)
 ```{r}
 y_0 <- 6
 sigmaSq <- 3.69
+alpha_0 <- 2.5
+alpha_1 <- .8
 
-f <- function(y_t) {2.5 - .8*y_t}
+f <- function(y_t) {alpha_0 - alpha_1*y_t}
 y_1 <- f(y_0)
 y_2 <- f(y_1)
 y_3 <- f(y_2)
@@ -260,8 +268,8 @@ y_3 <- f(y_2)
 | Forecast Variable      | Forecasted Value | 95% Confidence Interval Equation                               | 95% Confidence Interval                                                                     |
 |------------------------|------------------|----------------------------------------------------------------|---------------------------------------------------------------------------------------------|
 | $Y_1^F = 2.5 - .8Y_0$ | $`r y_1`$        | $Y_{t+1}^F \pm 1.96\sqrt{\sigma^2}$                            | [`r y_1 - 1.96*sqrt(sigmaSq)`, `r y_1 + 1.96*sqrt(sigmaSq)`]                                |
-| $Y_2^F = 2.5 - .8Y_1$ | $`r y_2`$        | $Y_{t+2}^F \pm 1.96\sqrt{\sigma^2(1+\alpha^2)}$                | [`r y_2 - 1.96*sqrt(sigmaSq*(1+.75^2))`,`r y_2 + 1.96*sqrt(sigmaSq*(1+.75^2))`]             |
-| $Y_3^F = 2.5 - .8Y_2$ | $`r y_3`$        | $Y_{t+3}^F \pm 1.96\sqrt{\sigma^2(1+\alpha_1^2 + \alpha_1^4)}$ | [`r y_3 - 1.96*sqrt(sigmaSq*(1+.75^2+.75^4))`,`r y_3 + 1.96*sqrt(sigmaSq*(1+.75^2+.75^4))`] |
+| $Y_2^F = 2.5 - .8Y_1$ | $`r y_2`$        | $Y_{t+2}^F \pm 1.96\sqrt{\sigma^2(1+\alpha^2)}$                | [`r y_2 - 1.96*sqrt(sigmaSq*(1+alpha_1^2))`,`r y_2 + 1.96*sqrt(sigmaSq*(1+alpha_1^2))`]             |
+| $Y_3^F = 2.5 - .8Y_2$ | $`r y_3`$        | $Y_{t+3}^F \pm 1.96\sqrt{\sigma^2(1+\alpha_1^2 + \alpha_1^4)}$ | [`r y_3 - 1.96*sqrt(sigmaSq*(1+alpha_1^2+alpha_1^4))`,`r y_3 + 1.96*sqrt(sigmaSq*(1+alpha_1^2+alpha_1^4))`] |
   
   
 
@@ -279,8 +287,10 @@ y_3 <- f(y_2)
 ```{r}
 y_0 <- -1.6
 sigmaSq <- 1.44
+alpha_0 <- 0
+alpha_1 <- -.5
 
-f <- function(y_t) {-.5*y_t}
+f <- function(y_t) {alpha_0 + alpha_1*y_t}
 y_1 <- f(y_0)
 y_2 <- f(y_1)
 y_3 <- f(y_2)
@@ -289,8 +299,8 @@ y_3 <- f(y_2)
 | Forecast Variable      | Forecasted Value | 95% Confidence Interval Equation                               | 95% Confidence Interval                                                                     |
 |------------------------|------------------|----------------------------------------------------------------|---------------------------------------------------------------------------------------------|
 | $Y_1^F = -.5Y_0$ | $`r y_1`$        | $Y_{t+1}^F \pm 1.96\sqrt{\sigma^2}$                            | [`r y_1 - 1.96*sqrt(sigmaSq)`, `r y_1 + 1.96*sqrt(sigmaSq)`]                                |
-| $Y_2^F = -.5Y_1$ | $`r y_2`$        | $Y_{t+2}^F \pm 1.96\sqrt{\sigma^2(1+\alpha^2)}$                | [`r y_2 - 1.96*sqrt(sigmaSq*(1+.75^2))`,`r y_2 + 1.96*sqrt(sigmaSq*(1+.75^2))`]             |
-| $Y_3^F = -.5Y_2$ | $`r y_3`$        | $Y_{t+3}^F \pm 1.96\sqrt{\sigma^2(1+\alpha_1^2 + \alpha_1^4)}$ | [`r y_3 - 1.96*sqrt(sigmaSq*(1+.75^2+.75^4))`,`r y_3 + 1.96*sqrt(sigmaSq*(1+.75^2+.75^4))`] |
+| $Y_2^F = -.5Y_1$ | $`r y_2`$        | $Y_{t+2}^F \pm 1.96\sqrt{\sigma^2(1+\alpha^2)}$                | [`r y_2 - 1.96*sqrt(sigmaSq*(1+alpha_1^2))`,`r y_2 + 1.96*sqrt(sigmaSq*(1+alpha_1^2))`]             |
+| $Y_3^F = -.5Y_2$ | $`r y_3`$        | $Y_{t+3}^F \pm 1.96\sqrt{\sigma^2(1+\alpha_1^2 + \alpha_1^4)}$ | [`r y_3 - 1.96*sqrt(sigmaSq*(1+alpha_1^2+alpha_1^4))`,`r y_3 + 1.96*sqrt(sigmaSq*(1+alpha_1^2+alpha_1^4))`] |
   
   
 ## Do a long-run (unconditional) forecasting and write 95% confidence interval.  
