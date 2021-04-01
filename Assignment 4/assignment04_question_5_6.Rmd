@@ -1,0 +1,279 @@
+---
+title: "Assignment 04, Question 5&6"
+author: "Jeff Nguyen"
+date: "April 1, 2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, envir=.GlobalEnv)
+```
+
+**University of Southern California**  
+**Marshall School of Business**  
+**FBE 543 Forecasting and Risk Analysis**
+  
+Student Name: Ngoc Son (Jeff) Nguyen  
+
+  
+# Question 5  
+  
+## a. Do a three-period ahead forecasting using the given initial values and statistics. Write 95% confidence interval for each forecast.  
+
+### a)  
+
+```{r}
+alpha_0 <- 6
+alpha_1 <- .7
+alpha_2 <- .12
+y_0 <- 5
+y_1 <- 6
+sigmaSq <- 1.21
+f <- function(y_tMinus1, y_tMinus2) {alpha_0 + alpha_1*y_tMinus1 + alpha_2*y_tMinus2}
+y_2 <- f(y_1, y_0)
+y_3 <- f(y_2, y_1)
+y_4 <- f(y_3, y_2)
+```
+  
+\begin{equation}
+  \begin{aligned}
+    Y_t =& `r alpha_0` + `r alpha_1` Y_{t-1}  + `r alpha_2` Y_{t-2} + \epsilon_t  \\
+    \text{given:}&  \\
+    y_0 =& `r y_0`  \\
+    y_1 =& `r y_1`
+    \sigma^2 =& `r sigmaSq` \\
+  \end{aligned}
+\end{equation}
+  
+  
+| Forecast Variable      | Forecasted Value | 95% Confidence Interval Equation                               | 95% Confidence Interval                                                                     |
+|------------------------|------------------|----------------------------------------------------------------|---------------------------------------------------------------------------------------------|
+| $Y_2^F = `r alpha_0` + `r alpha_1` Y_1 + `r alpha_2` Y_0$ | $`r y_2`$        | $Y_{t+1}^F \pm 1.96\sqrt{\sigma^2}$                            | [`r y_2 - 1.96*sqrt(sigmaSq)`, `r y_2 + 1.96*sqrt(sigmaSq)`]                                |
+| $Y_3^F = `r alpha_0` + `r alpha_1` Y_2 + `r alpha_2` Y_1$ | $`r y_3`$        | $Y_{t+2}^F \pm 1.96\sqrt{\sigma^2(1+\alpha_1^2)}$                | [`r y_3 - 1.96*sqrt(sigmaSq*(1+alpha_1^2))`,`r y_2 + 1.96*sqrt(sigmaSq*(1+alpha_1^2))`]             |
+| $Y_4^F = `r alpha_0` + `r alpha_1` Y_3 + `r alpha_2` Y_2$ | $`r y_4`$        | $Y_{t+3}^F \pm 1.96\sqrt{\sigma^2(1+\alpha_1^2 + \alpha_2^2 + \alpha_1^4 + 2 \alpha_1^2 \alpha_2)}$ | [`r y_4 - 1.96*sqrt(sigmaSq*(1+ alpha_1^2 + alpha_2^2 + alpha_1^4 + 2*alpha_1^2*alpha_2))`,`r y_4 + 1.96*sqrt(sigmaSq*(1+ alpha_1^2 + alpha_2^2 + alpha_1^4 + 2*alpha_1^2*alpha_2))`] |
+  
+
+### b)  
+
+```{r}
+alpha_0 <- 2.5
+alpha_1 <- .3
+alpha_2 <- -.28
+y_0 <- 1
+y_1 <- 2
+sigmaSq <- 6.25
+f <- function(y_tMinus1, y_tMinus2) {alpha_0 + alpha_1*y_tMinus1 + alpha_2*y_tMinus2}
+y_2 <- f(y_1, y_0)
+y_3 <- f(y_2, y_1)
+y_4 <- f(y_3, y_2)
+```
+  
+\begin{equation}
+  \begin{aligned}
+    Y_t =& `r alpha_0` + `r alpha_1` Y_{t-1}  + `r alpha_2` Y_{t-2} + \epsilon_t  \\
+    \text{given:}&  \\
+    y_0 =& `r y_0`  \\
+    y_1 =& `r y_1`
+    \sigma^2 =& `r sigmaSq` \\
+  \end{aligned}
+\end{equation}
+  
+  
+| Forecast Variable      | Forecasted Value | 95% Confidence Interval Equation                               | 95% Confidence Interval                                                                     |
+|------------------------|------------------|----------------------------------------------------------------|---------------------------------------------------------------------------------------------|
+| $Y_2^F = `r alpha_0` + `r alpha_1` Y_1 + `r alpha_2` Y_0$ | $`r y_2`$        | $Y_{t+1}^F \pm 1.96\sqrt{\sigma^2}$                            | [`r y_2 - 1.96*sqrt(sigmaSq)`, `r y_2 + 1.96*sqrt(sigmaSq)`]                                |
+| $Y_3^F = `r alpha_0` + `r alpha_1` Y_2 + `r alpha_2` Y_1$ | $`r y_3`$        | $Y_{t+2}^F \pm 1.96\sqrt{\sigma^2(1+\alpha_1^2)}$                | [`r y_3 - 1.96*sqrt(sigmaSq*(1+alpha_1^2))`,`r y_2 + 1.96*sqrt(sigmaSq*(1+alpha_1^2))`]             |
+| $Y_4^F = `r alpha_0` + `r alpha_1` Y_3 + `r alpha_2` Y_2$ | $`r y_4`$        | $Y_{t+3}^F \pm 1.96\sqrt{\sigma^2(1+\alpha_1^2 + \alpha_2^2 + \alpha_1^4 + 2 \alpha_1^2 \alpha_2)}$ | [`r y_4 - 1.96*sqrt(sigmaSq*(1+ alpha_1^2 + alpha_2^2 + alpha_1^4 + 2*alpha_1^2*alpha_2))`,`r y_4 + 1.96*sqrt(sigmaSq*(1+ alpha_1^2 + alpha_2^2 + alpha_1^4 + 2*alpha_1^2*alpha_2))`] |
+  
+
+### c)  
+
+```{r}
+alpha_0 <- 1.2
+alpha_1 <- -.2
+alpha_2 <- -.35
+y_0 <- 1.5
+y_1 <- 2
+sigmaSq <- .49
+f <- function(y_tMinus1, y_tMinus2) {alpha_0 + alpha_1*y_tMinus1 + alpha_2*y_tMinus2}
+y_2 <- f(y_1, y_0)
+y_3 <- f(y_2, y_1)
+y_4 <- f(y_3, y_2)
+```
+  
+\begin{equation}
+  \begin{aligned}
+    Y_t =& `r alpha_0` + `r alpha_1` Y_{t-1}  + `r alpha_2` Y_{t-2} + \epsilon_t  \\
+    \text{given:}&  \\
+    y_0 =& `r y_0`  \\
+    y_1 =& `r y_1`
+    \sigma^2 =& `r sigmaSq` \\
+  \end{aligned}
+\end{equation}
+  
+  
+| Forecast Variable      | Forecasted Value | 95% Confidence Interval Equation                               | 95% Confidence Interval                                                                     |
+|------------------------|------------------|----------------------------------------------------------------|---------------------------------------------------------------------------------------------|
+| $Y_2^F = `r alpha_0` + `r alpha_1` Y_1 + `r alpha_2` Y_0$ | $`r y_2`$        | $Y_{t+1}^F \pm 1.96\sqrt{\sigma^2}$                            | [`r y_2 - 1.96*sqrt(sigmaSq)`, `r y_2 + 1.96*sqrt(sigmaSq)`]                                |
+| $Y_3^F = `r alpha_0` + `r alpha_1` Y_2 + `r alpha_2` Y_1$ | $`r y_3`$        | $Y_{t+2}^F \pm 1.96\sqrt{\sigma^2(1+\alpha_1^2)}$                | [`r y_3 - 1.96*sqrt(sigmaSq*(1+alpha_1^2))`,`r y_2 + 1.96*sqrt(sigmaSq*(1+alpha_1^2))`]             |
+| $Y_4^F = `r alpha_0` + `r alpha_1` Y_3 + `r alpha_2` Y_2$ | $`r y_4`$        | $Y_{t+3}^F \pm 1.96\sqrt{\sigma^2(1+\alpha_1^2 + \alpha_2^2 + \alpha_1^4 + 2 \alpha_1^2 \alpha_2)}$ | [`r y_4 - 1.96*sqrt(sigmaSq*(1+ alpha_1^2 + alpha_2^2 + alpha_1^4 + 2*alpha_1^2*alpha_2))`,`r y_4 + 1.96*sqrt(sigmaSq*(1+ alpha_1^2 + alpha_2^2 + alpha_1^4 + 2*alpha_1^2*alpha_2))`] |
+  
+
+### d)  
+
+```{r}
+alpha_0 <- 2.5
+alpha_1 <- -.07
+alpha_2 <- .06
+y_0 <- 6
+y_1 <- 5
+sigmaSq <- 3.69
+f <- function(y_tMinus1, y_tMinus2) {alpha_0 + alpha_1*y_tMinus1 + alpha_2*y_tMinus2}
+y_2 <- f(y_1, y_0)
+y_3 <- f(y_2, y_1)
+y_4 <- f(y_3, y_2)
+```
+  
+\begin{equation}
+  \begin{aligned}
+    Y_t =& `r alpha_0` + `r alpha_1` Y_{t-1}  + `r alpha_2` Y_{t-2} + \epsilon_t  \\
+    \text{given:}&  \\
+    y_0 =& `r y_0`  \\
+    y_1 =& `r y_1`
+    \sigma^2 =& `r sigmaSq` \\
+  \end{aligned}
+\end{equation}
+  
+  
+| Forecast Variable      | Forecasted Value | 95% Confidence Interval Equation                               | 95% Confidence Interval                                                                     |
+|------------------------|------------------|----------------------------------------------------------------|---------------------------------------------------------------------------------------------|
+| $Y_2^F = `r alpha_0` + `r alpha_1` Y_1 + `r alpha_2` Y_0$ | $`r y_2`$        | $Y_{t+1}^F \pm 1.96\sqrt{\sigma^2}$                            | [`r y_2 - 1.96*sqrt(sigmaSq)`, `r y_2 + 1.96*sqrt(sigmaSq)`]                                |
+| $Y_3^F = `r alpha_0` + `r alpha_1` Y_2 + `r alpha_2` Y_1$ | $`r y_3`$        | $Y_{t+2}^F \pm 1.96\sqrt{\sigma^2(1+\alpha_1^2)}$                | [`r y_3 - 1.96*sqrt(sigmaSq*(1+alpha_1^2))`,`r y_2 + 1.96*sqrt(sigmaSq*(1+alpha_1^2))`]             |
+| $Y_4^F = `r alpha_0` + `r alpha_1` Y_3 + `r alpha_2` Y_2$ | $`r y_4`$        | $Y_{t+3}^F \pm 1.96\sqrt{\sigma^2(1+\alpha_1^2 + \alpha_2^2 + \alpha_1^4 + 2 \alpha_1^2 \alpha_2)}$ | [`r y_4 - 1.96*sqrt(sigmaSq*(1+ alpha_1^2 + alpha_2^2 + alpha_1^4 + 2*alpha_1^2*alpha_2))`,`r y_4 + 1.96*sqrt(sigmaSq*(1+ alpha_1^2 + alpha_2^2 + alpha_1^4 + 2*alpha_1^2*alpha_2))`] |
+  
+
+  
+## Do a long-run (unconditional) forecasting and write 95% confidence interval.  
+  
+### a)  
+  
+```{r}
+alpha_0 <- 6
+alpha_1 <- .7
+alpha_2 <- .12
+y_0 <- 5
+y_1 <- 6
+sigmaSq <- 1.21
+yLR <- alpha_0 / (1 - alpha_1 - alpha_2)
+sigmaSq_yLR <- (1 - alpha_2)*sigmaSq / ((1 + alpha_2)*((1 - alpha_2)^2 - alpha_1^2))
+```
+  
+  
+\begin{equation}
+  \begin{aligned}
+    Y_t =& `r alpha_0` + `r alpha_1` Y_{t-1}  + `r alpha_2` Y_{t-2} + \epsilon_t  \\
+    \text{given:}&  \\
+    y_0 =& `r y_0`  \\
+    y_1 =& `r y_1`
+    \sigma^2 =& `r sigmaSq` \\
+  \end{aligned}
+\end{equation}
+  
+
+| Forecast Long Run                          | Forecasted Value | 95% Confidence Interval Equation                      | 95% Confidence Interval                                              |
+|--------------------------------------------|------------------|-------------------------------------------------------|----------------------------------------------------------------------|
+| $Y_{LR} = \frac{`r alpha_0`}{1 - `r alpha_1` - `r alpha_2`}$ | $`r yLR`$        | $Y_{LR} \pm 1.96\sqrt{\frac{(1-\alpha_2)*\sigma^2}{(1+\alpha_2) [ (1-\alpha_2)^2 - \alpha_1 ]}}$ | [`r yLR - 1.96*sqrt(sigmaSq_yLR)`, `r yLR + 1.96*sqrt(sigmaSq_yLR)`] |
+  
+### b)  
+  
+```{r}
+alpha_0 <- 2.5
+alpha_1 <- .3
+alpha_2 <- -.28
+y_0 <- 1
+y_1 <- 2
+sigmaSq <- 6.25
+yLR <- alpha_0 / (1 - alpha_1 - alpha_2)
+sigmaSq_yLR <- (1 - alpha_2)*sigmaSq / ((1 + alpha_2)*((1 - alpha_2)^2 - alpha_1^2))
+```
+  
+  
+\begin{equation}
+  \begin{aligned}
+    Y_t =& `r alpha_0` + `r alpha_1` Y_{t-1}  + `r alpha_2` Y_{t-2} + \epsilon_t  \\
+    \text{given:}&  \\
+    y_0 =& `r y_0`  \\
+    y_1 =& `r y_1`
+    \sigma^2 =& `r sigmaSq` \\
+  \end{aligned}
+\end{equation}
+  
+
+| Forecast Long Run                          | Forecasted Value | 95% Confidence Interval Equation                      | 95% Confidence Interval                                              |
+|--------------------------------------------|------------------|-------------------------------------------------------|----------------------------------------------------------------------|
+| $Y_{LR} = \frac{`r alpha_0`}{1 - `r alpha_1` - `r alpha_2`}$ | $`r yLR`$        | $Y_{LR} \pm 1.96\sqrt{\frac{(1-\alpha_2)*\sigma^2}{(1+\alpha_2) [ (1-\alpha_2)^2 - \alpha_1 ]}}$ | [`r yLR - 1.96*sqrt(sigmaSq_yLR)`, `r yLR + 1.96*sqrt(sigmaSq_yLR)`] |
+  
+
+### c)  
+  
+```{r}
+alpha_0 <- 1.2
+alpha_1 <- -.2
+alpha_2 <- -.35
+y_0 <- 1.5
+y_1 <- 2
+sigmaSq <- .49
+yLR <- alpha_0 / (1 - alpha_1 - alpha_2)
+sigmaSq_yLR <- (1 - alpha_2)*sigmaSq / ((1 + alpha_2)*((1 - alpha_2)^2 - alpha_1^2))
+```
+  
+  
+\begin{equation}
+  \begin{aligned}
+    Y_t =& `r alpha_0` + `r alpha_1` Y_{t-1}  + `r alpha_2` Y_{t-2} + \epsilon_t  \\
+    \text{given:}&  \\
+    y_0 =& `r y_0`  \\
+    y_1 =& `r y_1`
+    \sigma^2 =& `r sigmaSq` \\
+  \end{aligned}
+\end{equation}
+  
+
+| Forecast Long Run                          | Forecasted Value | 95% Confidence Interval Equation                      | 95% Confidence Interval                                              |
+|--------------------------------------------|------------------|-------------------------------------------------------|----------------------------------------------------------------------|
+| $Y_{LR} = \frac{`r alpha_0`}{1 - `r alpha_1` - `r alpha_2`}$ | $`r yLR`$        | $Y_{LR} \pm 1.96\sqrt{\frac{(1-\alpha_2)*\sigma^2}{(1+\alpha_2) [ (1-\alpha_2)^2 - \alpha_1 ]}}$ | [`r yLR - 1.96*sqrt(sigmaSq_yLR)`, `r yLR + 1.96*sqrt(sigmaSq_yLR)`] |
+  
+
+### d)  
+  
+```{r}
+alpha_0 <- 2.5
+alpha_1 <- -.07
+alpha_2 <- .06
+y_0 <- 6
+y_1 <- 5
+sigmaSq <- 3.69
+yLR <- alpha_0 / (1 - alpha_1 - alpha_2)
+sigmaSq_yLR <- (1 - alpha_2)*sigmaSq / ((1 + alpha_2)*((1 - alpha_2)^2 - alpha_1^2))
+```
+  
+  
+\begin{equation}
+  \begin{aligned}
+    Y_t =& `r alpha_0` + `r alpha_1` Y_{t-1}  + `r alpha_2` Y_{t-2} + \epsilon_t  \\
+    \text{given:}&  \\
+    y_0 =& `r y_0`  \\
+    y_1 =& `r y_1`
+    \sigma^2 =& `r sigmaSq` \\
+  \end{aligned}
+\end{equation}
+  
+
+| Forecast Long Run                          | Forecasted Value | 95% Confidence Interval Equation                      | 95% Confidence Interval                                              |
+|--------------------------------------------|------------------|-------------------------------------------------------|----------------------------------------------------------------------|
+| $Y_{LR} = \frac{`r alpha_0`}{1 - `r alpha_1` - `r alpha_2`}$ | $`r yLR`$        | $Y_{LR} \pm 1.96\sqrt{\frac{(1-\alpha_2)*\sigma^2}{(1+\alpha_2) [ (1-\alpha_2)^2 - \alpha_1 ]}}$ | [`r yLR - 1.96*sqrt(sigmaSq_yLR)`, `r yLR + 1.96*sqrt(sigmaSq_yLR)`] |
+  
+  
+# Question 6
