@@ -42,7 +42,7 @@ y_4 <- f(y_3, y_2)
     Y_t =& `r alpha_0` + `r alpha_1` Y_{t-1}  + `r alpha_2` Y_{t-2} + \epsilon_t  \\
     \text{given:}&  \\
     y_0 =& `r y_0`  \\
-    y_1 =& `r y_1`
+    y_1 =& `r y_1`  \\
     \sigma^2 =& `r sigmaSq` \\
   \end{aligned}
 \end{equation}
@@ -75,7 +75,7 @@ y_4 <- f(y_3, y_2)
     Y_t =& `r alpha_0` + `r alpha_1` Y_{t-1}  + `r alpha_2` Y_{t-2} + \epsilon_t  \\
     \text{given:}&  \\
     y_0 =& `r y_0`  \\
-    y_1 =& `r y_1`
+    y_1 =& `r y_1`  \\
     \sigma^2 =& `r sigmaSq` \\
   \end{aligned}
 \end{equation}
@@ -108,7 +108,7 @@ y_4 <- f(y_3, y_2)
     Y_t =& `r alpha_0` + `r alpha_1` Y_{t-1}  + `r alpha_2` Y_{t-2} + \epsilon_t  \\
     \text{given:}&  \\
     y_0 =& `r y_0`  \\
-    y_1 =& `r y_1`
+    y_1 =& `r y_1`  \\
     \sigma^2 =& `r sigmaSq` \\
   \end{aligned}
 \end{equation}
@@ -141,7 +141,7 @@ y_4 <- f(y_3, y_2)
     Y_t =& `r alpha_0` + `r alpha_1` Y_{t-1}  + `r alpha_2` Y_{t-2} + \epsilon_t  \\
     \text{given:}&  \\
     y_0 =& `r y_0`  \\
-    y_1 =& `r y_1`
+    y_1 =& `r y_1`  \\
     \sigma^2 =& `r sigmaSq` \\
   \end{aligned}
 \end{equation}
@@ -176,7 +176,7 @@ sigmaSq_yLR <- (1 - alpha_2)*sigmaSq / ((1 + alpha_2)*((1 - alpha_2)^2 - alpha_1
     Y_t =& `r alpha_0` + `r alpha_1` Y_{t-1}  + `r alpha_2` Y_{t-2} + \epsilon_t  \\
     \text{given:}&  \\
     y_0 =& `r y_0`  \\
-    y_1 =& `r y_1`
+    y_1 =& `r y_1`  \\
     \sigma^2 =& `r sigmaSq` \\
   \end{aligned}
 \end{equation}
@@ -235,7 +235,7 @@ sigmaSq_yLR <- (1 - alpha_2)*sigmaSq / ((1 + alpha_2)*((1 - alpha_2)^2 - alpha_1
     Y_t =& `r alpha_0` + `r alpha_1` Y_{t-1}  + `r alpha_2` Y_{t-2} + \epsilon_t  \\
     \text{given:}&  \\
     y_0 =& `r y_0`  \\
-    y_1 =& `r y_1`
+    y_1 =& `r y_1`  \\
     \sigma^2 =& `r sigmaSq` \\
   \end{aligned}
 \end{equation}
@@ -265,7 +265,7 @@ sigmaSq_yLR <- (1 - alpha_2)*sigmaSq / ((1 + alpha_2)*((1 - alpha_2)^2 - alpha_1
     Y_t =& `r alpha_0` + `r alpha_1` Y_{t-1}  + `r alpha_2` Y_{t-2} + \epsilon_t  \\
     \text{given:}&  \\
     y_0 =& `r y_0`  \\
-    y_1 =& `r y_1`
+    y_1 =& `r y_1`  \\
     \sigma^2 =& `r sigmaSq` \\
   \end{aligned}
 \end{equation}
@@ -276,4 +276,21 @@ sigmaSq_yLR <- (1 - alpha_2)*sigmaSq / ((1 + alpha_2)*((1 - alpha_2)^2 - alpha_1
 | $Y_{LR} = \frac{`r alpha_0`}{1 - `r alpha_1` - `r alpha_2`}$ | $`r yLR`$        | $Y_{LR} \pm 1.96\sqrt{\frac{(1-\alpha_2)*\sigma^2}{(1+\alpha_2) [ (1-\alpha_2)^2 - \alpha_1 ]}}$ | [`r yLR - 1.96*sqrt(sigmaSq_yLR)`, `r yLR + 1.96*sqrt(sigmaSq_yLR)`] |
   
   
-# Question 6
+# Question 6  
+
+## 1. What is auto-correlation function (ACF)?  
+  
+In time series analysis, the $ACF$ is a function of correlation relationship between a time variable and its own lagged value.  The function identifies the order of $AR$ (Autoregressive), $I$ (Integration), and $MA$ (Moving Average) of the necessary $ARIMA$ model.  
+
+## 2. What is partial auto-correlation function (PACF)?  
+  
+In time series analysis, the partial autocorrelation function (PACF) gives the partial correlation of a stationary time series with its own lagged values, regressed the values of the time series at all shorter lags. It contrasts with the autocorrelation function, which does not control for other lags.  
+
+This function plays an important role in data analysis aimed at identifying the extent of the lag in an autoregressive model. The use of this function was introduced as part of the Box–Jenkins approach to time series modelling, whereby plotting the partial autocorrelative functions one could determine the appropriate lags p in an $AR(p)$ model or in an extended $ARIMA(p,d,q)$ model.  
+  
+## 3. Given the following correlograms write the order of the ARIMA for each model (a to d).  
+  
+### a. $AR(1)$  
+### b. $ARMA(1,1)$  
+### c. $MA(1)$  
+### d. $MA(1)$  
