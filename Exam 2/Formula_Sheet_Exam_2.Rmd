@@ -1,0 +1,129 @@
+---
+title: "Formula Sheet"
+author: "Jeff Nguyen"
+date: "01/03/2020"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, envir=.GlobalEnv)
+```
+
+# **Gauss-Markov Theorem**  
+## 6th Assumptions: Stationarity  
+
+A variable if overtime, the mean $\mu_X$, variance $\sigma_X$ and covariance $Cov(Y_t, Y_{t-5})$ stays the same.  
+- If the mean changes: it's a "mean non-stationary" variable.  
+- If the variance changes: it's a "variance non-stationary" variable.  
+
+Review the regression equation:  
+
+\begin{equation}
+  \begin{split}
+    Y_t =& \beta_0 + \beta_1 X_t + \epsilon_t  \\
+  \end{split}
+\end{equation}
+  
+$Y$            | $X$              | $\epsilon$       | Regression OK? | Note                         
+---            | ---              | ---              | ---            | ---        
+Stationary     | Stationary       | Stationary       | Yes            |
+Non-Stationary | Non-Stationary   | Stationary       | Yes            | Cointegration, needs more data          
+Non-Stationary | Non-Stationary   | Non-Stationary   | No             | Spurious Regression
+  
+# **Time Trend**
+Every time series variable can be decomposed to the following trend:  
+- Time  
+- Seasonal  
+- Cyclical  
+- Autocorrelation  
+- Randomness  
+
+**Note:** Recession is usually an economic variable.  
+
+## How to measure time trend?  
+
+### Step 1:  
+Run Regression:  
+
+\begin{equation}
+  \begin{split}
+    Y =& \beta_0 + \beta_1 T + \beta_2 T^2 + \beta T^3 + \epsilon  \\
+    & \text{Note: Nothing beyond} \, T^3  \\
+  \end{split}
+\end{equation}
+  
+If $T^3$ is insignificant, drop it and so on. The trend estimated equation is:  
+
+\begin{equation}
+  \begin{split}
+    \hat{Y} =& \hat{\beta_0} + \hat{\beta_1} T + \hat{\beta_2} T^2 + \hat{\beta_3} T^3  \\
+    Y =& \hat{Y} + \epsilon  \\
+  \end{split}
+\end{equation}
+
+$\hat{\epsilon}$ represents seasonality, cyclicality, autocorrelation, and randomness.
+  
+### Step 2:  
+Use $\hat{\epsilon_t}$ to estimate autocorrelation:  
+
+\begin{equation}
+  \begin{split}
+    \hat{\epsilon_t} =& \alpha_0 + \alpha_1 \hat{\epsilon_{t-1}}  \\
+  \end{split}
+\end{equation}
+  
+## What to do when you have spurious regression, i.e. $\epsilon$ is non-stationary?
+  
+In this case, $\epsilon$ shows as not scattered on a scatterplot. We have to de-trend the variable.
+  
+Two type of trend:  
+- Deterministic: when variable explicitly driven by trend (saving account balance).  
+- Stochastic: random variable (S&P 500 price movement).  
+
+**Important**  
+- If the variable is Tr
+
+### De-trend Deterministic Trend Variable:  
+- Run a regression on time: $Y = \beta_0 + \beta_1 T + \beta_2 T^2 + \beta T^3 + \epsilon$.  
+- The estimated $\hat{Y}$ is
+
+\begin{equation}
+  \begin{split}
+    \hat{Y} = \hat{\beta_0} + \hat{\beta_1} T + \hat{\beta_2} T^2 + \hat{\beta_3} T^3  \\
+  \end{split}
+\end{equation}
+  
+- The equation is then $Y = \hat{Y} + \hat{\epsilon}$ .
+- Take the error of regression $\hat{\epsilon}$ as "de-trended" $Y$.  
+
+### De-trend Stochastic Trend Variable:  
+- Differencing $Y$:  
+
+\begin{equation}
+  \begin{split}
+    \Delta Y =& Y_t - Y_{t-1}  \\
+  \end{split}
+\end{equation}
+  
+For example, stock price model:
+
+\begin{equation}
+  \begin{split}
+    Y_t =& Y_{t-1} + \epsilon_t  \\
+    &\text{via inspection:}   \\
+    Y_t =& Y_0 + \sum_{i=0}^t \epsilon_i  \\
+    &\text{thus:}  \\
+    E[Y_t] =& Y_0  \quad \text{The model is mean-stationary.}  \\
+    Var[Y_t] =& t \sigma_{\epsilon}^2  \quad \text{Variance non-stationary}  \\
+  \end{split}
+\end{equation}
+  
+Note that the random-walk hypothesis is variance-non-stationary.  
+  
+## Removing "wrong" Nonstationarity:  
+  
+- If the variable is Trend Stationary (TS) and was treated as Difference Stationary (DS), the estimated $\hat{\beta}$ will be unbiased, inefficient and consistent. Use more data to fix the problem.  
+  
+- If the variable is DS and was treated as TS, $\hat{\beta}$ will be biased, inefficient and inconsistent.
