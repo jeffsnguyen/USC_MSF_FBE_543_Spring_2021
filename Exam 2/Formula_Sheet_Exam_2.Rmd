@@ -127,3 +127,372 @@ Note that the random-walk hypothesis is variance-non-stationary.
 - If the variable is Trend Stationary (TS) and was treated as Difference Stationary (DS), the estimated $\hat{\beta}$ will be unbiased, inefficient and consistent. Use more data to fix the problem.  
   
 - If the variable is DS and was treated as TS, $\hat{\beta}$ will be biased, inefficient and inconsistent.
+  
+# **Smoothing Technique**  
+  
+## Simple Moving Average (SMA)  
+  
+Moving Average is not  a point forecast, it's a trend forecast.  
+  
+## How to calculate
+
+$Y$    | $MA(3)$                                 
+---    | ---                   
+$3$  |       
+$9$  | $\frac{3+9+6}{3} = 6$        
+$6$  | $\frac{9+6+7}{3} = 7.33$ 
+$7$  | $\frac{6+7+5}{3} = 6$ 
+$5$  | $\frac{7+5+2}{3} = 5.33$ 
+$2$  | 
+  
+```{r}
+library(forecast)
+library(pracma)
+
+# Code to calculate simple MA
+yArray <- c(3, 9, 6, 7, 5, 4, 2)
+n = 3
+
+smaArray <- movavg(yArray, n=n, type="s")
+startloc <- ceiling((n+1)/2)
+startloc
+smaArray[startloc+1:length(smaArray)]
+```
+  
+## Centered Moving Average (CMA)  
+  
+CMA is used to de-seasonalize data.
+  
+$Y$  | $MA(4)$                                 
+---  | ---                   
+$3$  |       
+$1$  |         
+$0$  | $\frac{3+1+0+4}{4} = 2$   
+$4$  | $\frac{1+0+4+2}{4} = 1.75$
+$2$  | $\frac{0+4+2+1}{4} = 1.75$
+$1$  | 
+  
+```{r}
+library(forecast)
+library(pracma)
+
+# Code to calculate simple MA
+yArray <- c(3, 1, 0, 4, 2, 1)
+n = 4
+
+smaArray <- movavg(yArray, n=n, type="s")
+loc1 <- ceiling((n+1)/2)
+loc2 <- ceiling((n+1)/2)
+startloc <- (loc1+loc2)/2
+
+startloc
+smaArray[startloc+1:length(smaArray)]
+```
+  
+## Weighted Moving Average (WMA)  
+
+\begin{equation}
+  \begin{split}
+    Y_{t+1} =& .5 Y_t + .3 Y_{t-1} + .2 Y_{t-2}  \\
+    \sum w =& .5 + .3 + .2 = 1  \\
+  \end{split}
+\end{equation}
+  
+Note: assign more weights to most recent data.  
+  
+```{r}
+yArray <- c(3, 9, 6, 7, 5, 4, 2)
+n = 3
+
+movavg(yArray, n=n, type="w")
+```
+  
+## Problem of Moving Average  
+  
+- Losing of observations (for example: beginning and end of data) and degree of freedom.  
+- Weights are equal weights when in reality, more weights should be given to most recent data.  
+- It's not a point forecast.  
+
+**Remarks:  Exponential Smoothing solve these problems based on the idea that the forecast of future time period is based on:**
+  
+\begin{equation}
+  \begin{split}
+    Y_{t+1} =& Y_t^F + \alpha (Y_t - Y_t^F)  \\
+    &\text{where} \, 0 < \alpha < 1 \, \text{is the damping effect}  \\
+    &\text{therefore:}  \\
+    Y_{t+1}^F =& \alpha Y_t + (1-\alpha) Y_t^F  \\
+              =& \alpha Y_t + \alpha(1-\alpha) Y_{t-1} + \alpha (1-\alpha)^2 Y_{t-2} + ...  \\
+  \end{split}
+\end{equation}
+
+# Reviewing Forecasting:  
+  
+ME = Mean Error (Average of errors).  
+RMSE = Root Mean Square Error (SD of residuals, i.e. how far data is from regression line).  
+MAE = Mean Absolute Error (Average of distance from regression line).  
+MAPE = Mean Absolute Percentage Error (measure prediction accuracy).  
+MASE = Mean Absolute Scaled Error (prediction accuracy).  
+
+When decompose time series, use additive for log variables and multiplicative for others.  
+
+## Simple Exponential Smoothing  
+  
+Use if data is flat.  
+
+Pick the damping effect that yields the smallest ACF1 metric.  
+
+### Exercise: Given damping effect $\alpha$, do one-period Exponential Smoothing forecast  
+
+Use the formula $Y_{t+1} = Y_t^F + \alpha (Y_t - Y_t^F)$. Note that it's not possible to do more than one-period ahead forecast using ES.  
+
+Confidence Interval:
+\begin{equation}
+  \begin{split}
+    Y^F - 1.96 \epsilon_F \leqslant Y_{actual} \leqslant Y^F + 1.96 \epsilon_F  \
+  \end{split}
+\end{equation}
+
+## Holt Trend Model  
+  
+Use if data has time trend use Holt Exponential Smoothing. If data has seasonality, use Holt-Winter Exponential Smoothing.
+
+\begin{equation}
+  \begin{split}
+    \text{Forecast Equation:}  \\
+    Y_{t+h}^F =& l_t + h b_t   \\
+    \text{Level Equation:}   \\
+    l_t =& \alpha y_t + (1-\alpha) (l_{t-1} + b_{t-1})  \\
+    \text{where} \, \alpha \, \text{is the smoothing coefficient for level}  \\
+    \text{Trend Equation:}  \\
+    b_t =& \beta (l_t - l_{t-1}) + (1-\beta) b_{t-1}  \\
+    \text{where} \, \beta \, \text{is smoothing coefficient for trend}  \\
+  \end{split}
+\end{equation}
+  
+## Random Walk  
+  
+### Random Walk (Naive Forecasting)  
+  
+\begin{equation}
+  \begin{split}
+    Y_t =& Y_0 + \sum_{i=1}^n \epsilon_i   \\
+    \mu =& E[Y_t] = Y_0 \quad \Leftarrow \quad \text{stationary}   \\
+    \sigma^2 =& Var[Y_t] = t \sigma_{\epsilon}^2 \quad \Leftarrow \quad \text{non-stationary}  \\
+  \end{split}
+\end{equation}
+  
+### Random Walk with Drift  
+  
+\begin{equation}
+  \begin{split}
+    Y_t =& Y_0 + t \alpha_0 + \sum_{i=1}^T \epsilon_i   \\
+    \mu =& E[Y_t] = Y_0 + t \alpha_0    \quad \Leftarrow \quad \text{stationary}   \\
+    \sigma^2 =& Var[Y_t] = t \sigma_{\epsilon}^2 \quad \Leftarrow \quad \text{non-stationary}  \\
+    \text{and}  \\
+    D(Y_t) =& \epsilon_t  \\
+    E[DY_t] =& 0  \\
+    Var[DY_t] =& \sigma_{\epsilon}^2  \\
+  \end{split}
+\end{equation}
+  
+### Random Walk with Drift and Noise  
+
+\begin{equation}
+  \begin{split}
+    Y_t =& \alpha_0 + Y_{t-1} + \epsilon_t + \eta_t   \\
+    E[Y_t] =& Y_0 + \alpha_0 t  \\
+    Var[Y_t] =& \sigma_{\epsilon}^2 + \sigma_{\eta}^2  \\
+  \end{split}
+\end{equation}
+  
+# 1st Order Linear Homogenous DE  
+
+\begin{equation}
+  \begin{split}
+    Y_t =& \alpha Y_{t-1} \quad \text{given} \, Y_0  \\
+    \text{Solution:} \quad Y_t = \alpha^t Y_0  \\
+  \end{split}
+\end{equation}
+  
+**If $0<\alpha<1$:** Y is a non-oscillating convergent model (stationary).  
+**If $\alpha>1$:** Y is a non-oscillating divergent model (non-stationary).  
+**If $-1<\alpha<0$:** Y is an oscillating convergent model.  
+**If $\alpha<-1$:** Y is an oscillating divergent model.  
+
+# 1st Order Linear Non-Homogenous DE  
+  
+\begin{equation}
+  \begin{split}
+    Y_t =& \alpha_0 + \alpha_1 Y_{t-1} \quad \text{given} \, Y_0  \\
+    \text{Solution:} \quad Y_t = \alpha_0 \frac{1-\alpha_1^t}{1-\alpha_1} + \alpha_1^t Y_0  \\
+  \end{split}
+\end{equation}
+  
+This result is used in Box-Jenkins methodology and ARIMA model.
+  
+# ARIMA Model  
+  
+Note that ARIMA has "short memory" because of its recursive nature $\Rightarrow$ each iteration erodes efficiency.  
+
+## Examples:
+
+### $Y_t = \alpha_0 + \alpha_1 Y_{t-1} + \epsilon_t$ $\Rightarrow$ ARIMA(1,0,0) or AR(1)  
+### $DY_t = \alpha_0 + \alpha_1 DY_{t-1} + \epsilon_t$ $\Rightarrow$ ARIMA(1,1,0)  
+### $Y_t = \alpha_0 + \alpha_1 Y_{t-1} + \epsilon_t + \beta \epsilon_{t-1}$ $\Rightarrow$ ARIMA(1,0,1) or ARMA(1,1)  
+### $DY_t = \alpha_0 + \alpha_1 DY_{t-1} + \epsilon_t + \beta_1 \epsilon_{t-1} + \beta_2 \epsilon_{t-2}$ $\Rightarrow$ ARIMA(1,1,2)  
+### $DY_t = \alpha_0 + \alpha_1 Y_{t-1} + \epsilon_t+ \beta \epsilon_{t-1}$ $\Rightarrow$ Mis-specified model as $DY_{t-1}$ is missing.  
+
+## Stationarity & Invertibility   
+
+### Stationary if $\sum_{i=1}^n |\alpha_i| < 1$ and vice versa.  
+### Invertibile if $\sum_{i=1}^n |\beta_i| < 1$ and N/A if there is no $\beta_i$.  
+
+## Quick Calculations  
+  
+  
+### $\alpha_0$ and $\alpha_1$ term only:  
+
+```{r}
+y_0 <- 2
+sigmaSq <- 1.21
+alpha_0 <- 1.6
+alpha_1 <- .75
+
+f <- function(y_t) {alpha_0 + alpha_1*y_t}
+y_1 <- f(y_0)
+y_2 <- f(y_1)
+y_3 <- f(y_2)
+```
+  
+| Forecast Variable      | Forecast Value | 95% Confidence Interval Equation                               | 95% Confidence Interval                                                                     |
+|------------------------|------------------|----------------------------------------------------------------|---------------------------------------------------------------------------------------------|
+| $Y_1^F = -.5Y_0$ | $`r y_1`$        | $Y_{t+1}^F \pm 1.96\sqrt{\sigma^2}$                            | [`r y_1 - 1.96*sqrt(sigmaSq)`, `r y_1 + 1.96*sqrt(sigmaSq)`]                                |
+| $Y_2^F = -.5Y_1$ | $`r y_2`$        | $Y_{t+2}^F \pm 1.96\sqrt{\sigma^2(1+\alpha^2)}$                | [`r y_2 - 1.96*sqrt(sigmaSq*(1+alpha_1^2))`,`r y_2 + 1.96*sqrt(sigmaSq*(1+alpha_1^2))`]             |
+| $Y_3^F = -.5Y_2$ | $`r y_3`$        | $Y_{t+3}^F \pm 1.96\sqrt{\sigma^2(1+\alpha_1^2 + \alpha_1^4)}$ | [`r y_3 - 1.96*sqrt(sigmaSq*(1+alpha_1^2+alpha_1^4))`,`r y_3 + 1.96*sqrt(sigmaSq*(1+alpha_1^2+alpha_1^4))`] |
+  
+
+  
+```{r}
+yLR <- alpha_0 / (1 - alpha_1)
+sigmaSq_yLR <- sigmaSq / (1 - alpha_1^2)
+```
+  
+| Forecast Long Run                          | Forecast Value | 95% Confidence Interval Equation                      | 95% Confidence Interval                                              |
+|--------------------------------------------|------------------|-------------------------------------------------------|----------------------------------------------------------------------|
+| $Y_{LR} = \frac{`r alpha_0`}{`r alpha_1`}$ | $`r yLR`$        | $Y_{LR} \pm 1.96\sqrt{\frac{\sigma^2}{1-\alpha_1^2}}$ | [`r yLR - 1.96*sqrt(sigmaSq_yLR)`, `r yLR + 1.96*sqrt(sigmaSq_yLR)`] |
+  
+### $\alpha_0$, $\alpha_1$ and $\alpha_2$ terms only:  
+
+```{r}
+alpha_0 <- 6
+alpha_1 <- .7
+alpha_2 <- .12
+y_0 <- 5
+y_1 <- 6
+sigmaSq <- 1.21
+f <- function(y_tMinus1, y_tMinus2) {alpha_0 + alpha_1*y_tMinus1 + alpha_2*y_tMinus2}
+y_2 <- f(y_1, y_0)
+y_3 <- f(y_2, y_1)
+y_4 <- f(y_3, y_2)
+```
+  
+| Forecast Variable      | Forecast Value | 95% Confidence Interval Equation                               | 95% Confidence Interval                                                                     |
+|------------------------|------------------|----------------------------------------------------------------|---------------------------------------------------------------------------------------------|
+| $Y_2^F = `r alpha_0` + `r alpha_1` Y_1 + `r alpha_2` Y_0$ | $`r y_2`$        | $Y_{t+1}^F \pm 1.96\sqrt{\sigma^2}$                            | [`r y_2 - 1.96*sqrt(sigmaSq)`, `r y_2 + 1.96*sqrt(sigmaSq)`]                                |
+| $Y_3^F = `r alpha_0` + `r alpha_1` Y_2 + `r alpha_2` Y_1$ | $`r y_3`$        | $Y_{t+2}^F \pm 1.96\sqrt{\sigma^2(1+\alpha_1^2)}$                | [`r y_3 - 1.96*sqrt(sigmaSq*(1+alpha_1^2))`,`r y_2 + 1.96*sqrt(sigmaSq*(1+alpha_1^2))`]             |
+| $Y_4^F = `r alpha_0` + `r alpha_1` Y_3 + `r alpha_2` Y_2$ | $`r y_4`$        | $Y_{t+3}^F \pm 1.96\sqrt{\sigma^2(1+\alpha_1^2 + \alpha_2^2 + \alpha_1^4 + 2 \alpha_1^2 \alpha_2)}$ | [`r y_4 - 1.96*sqrt(sigmaSq*(1+ alpha_1^2 + alpha_2^2 + alpha_1^4 + 2*alpha_1^2*alpha_2))`,`r y_4 + 1.96*sqrt(sigmaSq*(1+ alpha_1^2 + alpha_2^2 + alpha_1^4 + 2*alpha_1^2*alpha_2))`] |
+  
+```{r}
+yLR <- alpha_0 / (1 - alpha_1 - alpha_2)
+sigmaSq_yLR <- (1 - alpha_2)*sigmaSq / ((1 + alpha_2)*((1 - alpha_2)^2 - alpha_1^2))
+```
+  
+| Forecast Long Run                          | Forecast Value | 95% Confidence Interval Equation                      | 95% Confidence Interval                                              |
+|--------------------------------------------|------------------|-------------------------------------------------------|----------------------------------------------------------------------|
+| $Y_{LR} = \frac{`r alpha_0`}{1 - `r alpha_1` - `r alpha_2`}$ | $`r yLR`$        | $Y_{LR} \pm 1.96\sqrt{\frac{(1-\alpha_2)*\sigma^2}{(1+\alpha_2) [ (1-\alpha_2)^2 - \alpha_1^2 ]}}$ | [`r yLR - 1.96*sqrt(sigmaSq_yLR)`, `r yLR + 1.96*sqrt(sigmaSq_yLR)`] |
+  
+# Box-Jenkins' Methodology
+  
+## Objective  
+Estimating the data generating process of a time-series variable as a function of time $Y_t = f(t)$.  
+
+## Why ARIMA Model  
+- When structural modes are not useful: Daily stock price.  
+- Sometimes structural models are not good forecasting models.  
+- Sometimes data are not available for structural models.  
+
+## Three Stages of ARIMA:  
+- **Identification:**  Finding order of $ARIMA(p,d,q)$ using correlogram.  
+- **Estimation**  
+- **Diagnostics**  
+
+## Two Rquirements of ARIMA:  
+- **Stationarity:** The variable should be tested for stationarity. If the variable is non-stationary, it should be converted to stationary by first differencing the variable.  
+- **Parsimony:** Selecting the model which is parsimonious (simple but have great explaining power) using AIC, SBC. Models which are not parsimonious may fit better to noise than signals. They will not forecast future well.  
+
+## Measurement of Goodness in ARIMA:  
+  
+AIC and SBC (not $R^2$) are measurement of goodness of fit for ARIMA estimates, with SBC emphasizing parsimony.  
+
+\begin{equation}
+  \begin{split}
+    AIC =& \ln{\sigma^2} + \frac{2k}{T}  \\
+    SBC =& \ln{\sigma^2} + \frac{k}{T} \ln{T}  \\
+    &\text{where}  \\
+    k =& p + q + 1  \\
+    T =& \, \text{Number of observations}  \\
+  \end{split}
+\end{equation}
+  
+## Diagnostics:  
+  
+ARIMA will have a good forecasting output if:  
+- The residual of the regression is white noise. To test for white noise error, use correlogram of the residual.  
+- Coefficients of ARIMA are stable. To test for the stability of the coefficients, split the data, run two ARIMA and do an F test.  
+
+## F Test of Diagnostics:  
+- Split data to two parts, fit ARIMA to each part and to the whole sample.  
+
+\begin{equation}
+  \begin{split}
+    F =& \frac{\frac{SSR_T - SSR_1 - SSR_2}{k}}{\frac{SSR_1 + SSR_2}{T - 2k}}  \\
+    H_0:& \, \text{Coefficients are the same.}  \\
+    H_a:& \, \text{Coefficients are not the same.}  \\
+    &\text{where}  \\
+    SSR_T =& \, \text{Total Sum Squared Residual}  \\
+    SSR_1 =& \, \text{SSR for first part of the sample}  \\
+    SSR_2 =& \, \text{SSR for second part of the sample}  \\
+    K =& p + q + 1  \\
+    T =& \, \text{Sample size}  \\
+  \end{split}
+\end{equation}
+
+## Properties of a Good ARIMA Model:  
+- Parsimonious.  
+- Has coefficients that are stationary and are invertible.  
+- Fits data well.  
+- Has residuals that are white noise.  
+- Has coefficients that do not change over sample period.  
+- Has good out-of-sample forecast.  
+
+# Reading ACF and PACF  
+
+# Non-stationary: 
+- If PACF has a single spike at $r_0 \approx 1$ and the rest is insignificant and ACF mostly significant and gradually decreasing $\Rightarrow$ non-stationary model.  
+  
+## Models of Volatility:  
+Many financial time series go through periods of tranquility and periods of volatility. Volatility and its measures are some of the most important concepts in finance.  
+
+## Historical Volatility:  
+Measures the variance or standard deviation of returns over some period and uses it as measure of forecast of future volatility.  It's used in option valuation and option pricing.  
+
+## Characteristics of Financial Data:  
+- Non-stationary.  
+- Leptokurtosis: sharp peaks, fat tails.  
+- Volatility clustering.  
+- Leverage effect: Volatility rise more with price fall than price rise.  
+- Has coefficients that do not change over sample period.  
+- Has plenty noises as well as signals.  
+- Volatility is mean reverting.  
+  
+**Conditional Heteroskedacity:** When forecasting, we are concerned more with conditional mean and conditional variance
