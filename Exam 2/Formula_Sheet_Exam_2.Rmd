@@ -342,7 +342,7 @@ Note that ARIMA has "short memory" because of its recursive nature $\Rightarrow$
 
 ## Stationarity & Invertibility   
 
-### Stationary if $\sum_{i=1}^n |\alpha_i| < 1$ and vice versa.  
+### Stationary if $\sum_{i=1}^n |\alpha_i| < 1$ and vice versa. Note that if $|\alpha_i| < 1$ and $\sum_{i=1}^n |\alpha_i| > 1$, non-stationarity is a possibility and an (A)DF Test is appropriate.  
 ### Invertibile if $\sum_{i=1}^n |\beta_i| < 1$ and N/A if there is no $\beta_i$.  
 
 ## Quick Calculations  
