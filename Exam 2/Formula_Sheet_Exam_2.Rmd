@@ -81,9 +81,7 @@ In this case, $\epsilon$ shows as not scattered on a scatterplot. We have to de-
 Two type of trend:  
 - Deterministic: when variable explicitly driven by trend (saving account balance).  
 - Stochastic: random variable (S&P 500 price movement).  
-
-**Important**  
-- If the variable is Tr
+  
 
 ### De-trend Deterministic Trend Variable:  
 - Run a regression on time: $Y = \beta_0 + \beta_1 T + \beta_2 T^2 + \beta T^3 + \epsilon$.  
@@ -310,7 +308,7 @@ Use if data has time trend use Holt Exponential Smoothing. If data has seasonali
 \begin{equation}
   \begin{split}
     Y_t =& \alpha Y_{t-1} \quad \text{given} \, Y_0  \\
-    \text{Solution:} \quad Y_t = \alpha^t Y_0  \\
+    \text{Solution:} \quad Y_t =& \alpha^t Y_0  \\
   \end{split}
 \end{equation}
   
@@ -324,7 +322,7 @@ Use if data has time trend use Holt Exponential Smoothing. If data has seasonali
 \begin{equation}
   \begin{split}
     Y_t =& \alpha_0 + \alpha_1 Y_{t-1} \quad \text{given} \, Y_0  \\
-    \text{Solution:} \quad Y_t = \alpha_0 \frac{1-\alpha_1^t}{1-\alpha_1} + \alpha_1^t Y_0  \\
+    \text{Solution:} \quad Y_t =& \alpha_0 \frac{1-\alpha_1^t}{1-\alpha_1} + \alpha_1^t Y_0  \\
   \end{split}
 \end{equation}
   
@@ -429,10 +427,10 @@ Estimating the data generating process of a time-series variable as a function o
 ## Two Rquirements of ARIMA:  
 - **Stationarity:** The variable should be tested for stationarity. If the variable is non-stationary, it should be converted to stationary by first differencing the variable.  
 - **Parsimony:** Selecting the model which is parsimonious (simple but have great explaining power) using AIC, SBC. Models which are not parsimonious may fit better to noise than signals. They will not forecast future well.  
-
+  
 ## Measurement of Goodness in ARIMA:  
   
-AIC and SBC (not $R^2$) are measurement of goodness of fit for ARIMA estimates, with SBC emphasizing parsimony.  
+AIC and SBC (not $R^2$) are measurement of goodness of fit for ARIMA estimates, with SBC emphasizing parsimony. A lower AIC or BIC value indicates good fit.  
 
 \begin{equation}
   \begin{split}
@@ -444,6 +442,9 @@ AIC and SBC (not $R^2$) are measurement of goodness of fit for ARIMA estimates, 
   \end{split}
 \end{equation}
   
+**When run ARIMA model in R, to determine if coefficient is significant or not, divide coefficient by the S.E.. If result is large then it is significant.**  
+
+
 ## Diagnostics:  
   
 ARIMA will have a good forecasting output if:  
@@ -474,11 +475,6 @@ ARIMA will have a good forecasting output if:
 - Has residuals that are white noise.  
 - Has coefficients that do not change over sample period.  
 - Has good out-of-sample forecast.  
-
-# Reading ACF and PACF  
-
-# Non-stationary: 
-- If PACF has a single spike at $r_0 \approx 1$ and the rest is insignificant and ACF mostly significant and gradually decreasing $\Rightarrow$ non-stationary model.  
   
 ## Models of Volatility:  
 Many financial time series go through periods of tranquility and periods of volatility. Volatility and its measures are some of the most important concepts in finance.  
@@ -495,4 +491,33 @@ Measures the variance or standard deviation of returns over some period and uses
 - Has plenty noises as well as signals.  
 - Volatility is mean reverting.  
   
-**Conditional Heteroskedacity:** When forecasting, we are concerned more with conditional mean and conditional variance
+# Reading ACF and PACF  
+
+## Non-stationary: 
+- If PACF has a single spike at $r_0 \approx 1$ and the rest is insignificant and ACF mostly significant and gradually decreasing $\Rightarrow$ non-stationary model.  
+  
+# (A)DF Test  
+- Failed to reject the null hypothesis: there is a unit root $\Rightarrow$ non-stationary.  
+- Reject the null hypothesis: stationary.  
+
+# Test for White Noise  
+  
+## Box-Pierce Test  
+
+**Null hypothesis: Residuals are White Noise.**  
+
+\begin{equation}
+  \begin{split}
+    Q =& T \sum r^2  \\
+  \end{split}
+\end{equation}
+  
+## Box-Ljung Test  
+
+**Null hypothesis: Residuals are White Noise.**  
+
+\begin{equation}
+  \begin{split}
+    Q =& T(T+2) \sum (T-K)^{-r^2}  \\
+  \end{split}
+\end{equation}
