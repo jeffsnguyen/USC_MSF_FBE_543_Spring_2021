@@ -521,3 +521,35 @@ Measures the variance or standard deviation of returns over some period and uses
     Q =& T(T+2) \sum (T-K)^{-r^2}  \\
   \end{split}
 \end{equation}
+  
+  
+Recall AR(2)  
+
+\begin{equation}
+  \begin{split}
+    Y_t =& \alpha_0 + \alpha_1  Y_{t-1} + \alpha_2 Y_{t-2}  \\
+    \text{Regressing} \, \epsilon \, \text{:}  \\
+    b_i =& \alpha_1 b_{i-1} + \alpha_2 b_{i-2}  \\
+    \text{We have:}  \\
+    \epsilon_{Y_{t+1}} =& \sum_{i=0}^1 b_i \epsilon_{t-1}  \\
+                       =& b_0 \epsilon_t + b_1 \epsilon_{t-1}  \\
+                       =& \epsilon_t + \alpha_1 \epsilon_{t-1}  \\
+    \text{Thus:}  \\
+    Var[Y_{t+1}] =& (1 + \alpha_1^2) \sigma_{\epsilon}^2  \\
+  \end{split}
+\end{equation}
+  
+Similarly:  
+
+\begin{equation}
+  \begin{split}
+    \epsilon_{Y_{t+2}} =& \sum_{i=0}^2 b_i \epsilon_{t-1}  \\
+                       =& b_0 \epsilon_t + b_1 \epsilon_{t-1} + b_2 \epsilon_{t-2}  \\
+    \text{Recall that:} \, b_i = \alpha_1 b_{i-1} + \alpha_2 b_{i-2}  \\
+    \text{We have:}
+    \epsilon_{Y_{t+2}} =& \epsilon_t + \alpha_1 \epsilon_{t-1} + (\alpha_1 b_1 + \alpha_2  b_0) \epsilon_{t-2}  \\
+                       =& \epsilon_t + \alpha_1 \epsilon_{t-1} + (\alpha_1^2 + \alpha_2) \epsilon_{t-2}  \\
+    \text{Thus:}  \\
+    Var[Y_{t+2}] =& \big[ 1 + \alpha_1^2 + (\alpha_1^2 + \alpha_2)^2 \big] \sigma_{\epsilon}^2  \\
+  \end{split}
+\end{equation}
