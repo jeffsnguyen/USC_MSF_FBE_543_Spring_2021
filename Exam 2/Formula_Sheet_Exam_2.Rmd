@@ -348,7 +348,7 @@ Note that ARIMA has "short memory" because of its recursive nature $\Rightarrow$
 ## Quick Calculations  
   
   
-### $\alpha_0$ and $\alpha_1$ term only:  
+### AR(1) Model:  
 
 ```{r}
 y_0 <- 2
@@ -364,9 +364,9 @@ y_3 <- f(y_2)
   
 | Forecast Variable      | Forecast Value | 95% Confidence Interval Equation                               | 95% Confidence Interval                                                                     |
 |------------------------|------------------|----------------------------------------------------------------|---------------------------------------------------------------------------------------------|
-| $Y_1^F = -.5Y_0$ | $`r y_1`$        | $Y_{t+1}^F \pm 1.96\sqrt{\sigma^2}$                            | [`r y_1 - 1.96*sqrt(sigmaSq)`, `r y_1 + 1.96*sqrt(sigmaSq)`]                                |
-| $Y_2^F = -.5Y_1$ | $`r y_2`$        | $Y_{t+2}^F \pm 1.96\sqrt{\sigma^2(1+\alpha^2)}$                | [`r y_2 - 1.96*sqrt(sigmaSq*(1+alpha_1^2))`,`r y_2 + 1.96*sqrt(sigmaSq*(1+alpha_1^2))`]             |
-| $Y_3^F = -.5Y_2$ | $`r y_3`$        | $Y_{t+3}^F \pm 1.96\sqrt{\sigma^2(1+\alpha_1^2 + \alpha_1^4)}$ | [`r y_3 - 1.96*sqrt(sigmaSq*(1+alpha_1^2+alpha_1^4))`,`r y_3 + 1.96*sqrt(sigmaSq*(1+alpha_1^2+alpha_1^4))`] |
+| $Y_1^F = -.5Y_0$ | $`r y_1`$        | $Y_{t+1}^F \pm 1.96\sqrt{\sigma^2}$                            | $P(`r y_1 - 1.96 * sqrt(sigmaSq)` \leqslant Y_{t+1} \leqslant `r y_1 + 1.96 * sqrt(sigmaSq)`) = .95$ |
+| $Y_2^F = -.5Y_1$ | $`r y_2`$        | $Y_{t+2}^F \pm 1.96\sqrt{\sigma^2(1+\alpha^2)}$                | $P(`r y_2 - 1.96*sqrt(sigmaSq*(1+alpha_1^2))` \leqslant Y_{t+2} \leqslant `r y_2 + 1.96*sqrt(sigmaSq*(1+alpha_1^2))`) = .95$             |
+| $Y_3^F = -.5Y_2$ | $`r y_3`$        | $Y_{t+3}^F \pm 1.96\sqrt{\sigma^2(1+\alpha_1^2 + \alpha_1^4)}$ | $P(`r y_3 - 1.96*sqrt(sigmaSq*(1+alpha_1^2+alpha_1^4))` \leqslant Y_{t+3} \leqslant `r y_3 + 1.96*sqrt(sigmaSq*(1+alpha_1^2+alpha_1^4))`) = .95$ |
   
 
   
@@ -377,9 +377,9 @@ sigmaSq_yLR <- sigmaSq / (1 - alpha_1^2)
   
 | Forecast Long Run                          | Forecast Value | 95% Confidence Interval Equation                      | 95% Confidence Interval                                              |
 |--------------------------------------------|------------------|-------------------------------------------------------|----------------------------------------------------------------------|
-| $Y_{LR} = \frac{`r alpha_0`}{`r alpha_1`}$ | $`r yLR`$        | $Y_{LR} \pm 1.96\sqrt{\frac{\sigma^2}{1-\alpha_1^2}}$ | [`r yLR - 1.96*sqrt(sigmaSq_yLR)`, `r yLR + 1.96*sqrt(sigmaSq_yLR)`] |
+| $Y_{LR} = \frac{`r alpha_0`}{`r alpha_1`}$ | $`r yLR`$        | $Y_{LR} \pm 1.96\sqrt{\frac{\sigma^2}{1-\alpha_1^2}}$ | $P(`r yLR - 1.96*sqrt(sigmaSq_yLR)` \leqslant Y_{LR} \leqslant `r yLR + 1.96*sqrt(sigmaSq_yLR)`) = .95$ |
   
-### $\alpha_0$, $\alpha_1$ and $\alpha_2$ terms only:  
+### AR(2) Model:  
 
 ```{r}
 alpha_0 <- 6
@@ -396,9 +396,9 @@ y_4 <- f(y_3, y_2)
   
 | Forecast Variable      | Forecast Value | 95% Confidence Interval Equation                               | 95% Confidence Interval                                                                     |
 |------------------------|------------------|----------------------------------------------------------------|---------------------------------------------------------------------------------------------|
-| $Y_2^F = `r alpha_0` + `r alpha_1` Y_1 + `r alpha_2` Y_0$ | $`r y_2`$        | $Y_{t+1}^F \pm 1.96\sqrt{\sigma^2}$                            | [`r y_2 - 1.96*sqrt(sigmaSq)`, `r y_2 + 1.96*sqrt(sigmaSq)`]                                |
-| $Y_3^F = `r alpha_0` + `r alpha_1` Y_2 + `r alpha_2` Y_1$ | $`r y_3`$        | $Y_{t+2}^F \pm 1.96\sqrt{\sigma^2(1+\alpha_1^2)}$                | [`r y_3 - 1.96*sqrt(sigmaSq*(1+alpha_1^2))`,`r y_2 + 1.96*sqrt(sigmaSq*(1+alpha_1^2))`]             |
-| $Y_4^F = `r alpha_0` + `r alpha_1` Y_3 + `r alpha_2` Y_2$ | $`r y_4`$        | $Y_{t+3}^F \pm 1.96\sqrt{\sigma^2(1+\alpha_1^2 + \alpha_2^2 + \alpha_1^4 + 2 \alpha_1^2 \alpha_2)}$ | [`r y_4 - 1.96*sqrt(sigmaSq*(1+ alpha_1^2 + alpha_2^2 + alpha_1^4 + 2*alpha_1^2*alpha_2))`,`r y_4 + 1.96*sqrt(sigmaSq*(1+ alpha_1^2 + alpha_2^2 + alpha_1^4 + 2*alpha_1^2*alpha_2))`] |
+| $Y_2^F = `r alpha_0` + `r alpha_1` Y_1 + `r alpha_2` Y_0$ | $`r y_2`$        | $Y_{t+1}^F \pm 1.96 \sqrt{\sigma^2 * (1 + \alpha_1^2)}$                            | $P(`r y_2 - 1.96*sqrt(sigmaSq*(1+alpha_1^2))` \leqslant Y_{t+1} \leqslant `r y_2 + 1.96*sqrt(sigmaSq*(1+alpha_1^2))`) = .95$                                |
+| $Y_3^F = `r alpha_0` + `r alpha_1` Y_2 + `r alpha_2` Y_1$ | $`r y_3`$        | $Y_{t+2}^F \pm 1.96\sqrt{\sigma^2(1+\alpha_1^2 + \alpha_2^2 + \alpha_1^4 + 2 \alpha_1^2 \alpha_2)}$                | $P(`r y_3 - 1.96*sqrt(sigmaSq*(1+ alpha_1^2 + alpha_2^2 + alpha_1^4 + 2*alpha_1^2*alpha_2))` \leqslant Y_{t+2} \leqslant `r y_3 + 1.96*sqrt(sigmaSq*(1+ alpha_1^2 + alpha_2^2 + alpha_1^4 + 2*alpha_1^2*alpha_2))`) = .95$             |
+| $Y_4^F = `r alpha_0` + `r alpha_1` Y_3 + `r alpha_2` Y_2$ | $`r y_4`$        | $Y_{t+3}^F \pm 1.96\sqrt{\sigma^2[1+\alpha_1^2 + (\alpha_1^2 + \alpha_2)^2 + (\alpha_1^3 + 2 \alpha_2 \alpha_1)^2]}$ | $P(`r y_4 - 1.96*sqrt(sigmaSq*(1+ alpha_1^2 + (alpha_1^2+alpha_2)^2 + (alpha_1^3 + 2*alpha_1*alpha_2)^2))` \leqslant Y_{t+3} \leqslant `r y_4 + 1.96*sqrt(sigmaSq*(1+ alpha_1^2 + (alpha_1^2+alpha_2)^2 + (alpha_1^3 + 2*alpha_1*alpha_2)^2))`) = .95$ |
   
 ```{r}
 yLR <- alpha_0 / (1 - alpha_1 - alpha_2)
@@ -407,7 +407,7 @@ sigmaSq_yLR <- (1 - alpha_2)*sigmaSq / ((1 + alpha_2)*((1 - alpha_2)^2 - alpha_1
   
 | Forecast Long Run                          | Forecast Value | 95% Confidence Interval Equation                      | 95% Confidence Interval                                              |
 |--------------------------------------------|------------------|-------------------------------------------------------|----------------------------------------------------------------------|
-| $Y_{LR} = \frac{`r alpha_0`}{1 - `r alpha_1` - `r alpha_2`}$ | $`r yLR`$        | $Y_{LR} \pm 1.96\sqrt{\frac{(1-\alpha_2)*\sigma^2}{(1+\alpha_2) [ (1-\alpha_2)^2 - \alpha_1^2 ]}}$ | [`r yLR - 1.96*sqrt(sigmaSq_yLR)`, `r yLR + 1.96*sqrt(sigmaSq_yLR)`] |
+| $Y_{LR} = \frac{`r alpha_0`}{1 - `r alpha_1` - `r alpha_2`}$ | $`r yLR`$        | $Y_{LR} \pm 1.96\sqrt{\frac{(1-\alpha_2)*\sigma^2}{(1+\alpha_2) [ (1-\alpha_2)^2 - \alpha_1^2 ]}}$ | $P(`r yLR - 1.96*sqrt(sigmaSq_yLR)` \leqslant Y_{LR} \leqslant `r yLR + 1.96*sqrt(sigmaSq_yLR)`) = .95$ |
   
 # Box-Jenkins' Methodology
   
