@@ -400,6 +400,7 @@ y_4 <- f(y_3, y_2)
 | $Y_3^F = `r alpha_0` + `r alpha_1` Y_2 + `r alpha_2` Y_1$ | $`r y_3`$        | $Y_{t+2}^F \pm 1.96\sqrt{\sigma^2(1+\alpha_1^2 + \alpha_2^2 + \alpha_1^4 + 2 \alpha_1^2 \alpha_2)}$                | $P(`r y_3 - 1.96*sqrt(sigmaSq*(1+ alpha_1^2 + alpha_2^2 + alpha_1^4 + 2*alpha_1^2*alpha_2))` \leqslant Y_{t+2} \leqslant `r y_3 + 1.96*sqrt(sigmaSq*(1+ alpha_1^2 + alpha_2^2 + alpha_1^4 + 2*alpha_1^2*alpha_2))`) = .95$             |
 | $Y_4^F = `r alpha_0` + `r alpha_1` Y_3 + `r alpha_2` Y_2$ | $`r y_4`$        | $Y_{t+3}^F \pm 1.96\sqrt{\sigma^2[1+\alpha_1^2 + (\alpha_1^2 + \alpha_2)^2 + (\alpha_1^3 + 2 \alpha_2 \alpha_1)^2]}$ | $P(`r y_4 - 1.96*sqrt(sigmaSq*(1+ alpha_1^2 + (alpha_1^2+alpha_2)^2 + (alpha_1^3 + 2*alpha_1*alpha_2)^2))` \leqslant Y_{t+3} \leqslant `r y_4 + 1.96*sqrt(sigmaSq*(1+ alpha_1^2 + (alpha_1^2+alpha_2)^2 + (alpha_1^3 + 2*alpha_1*alpha_2)^2))`) = .95$ |
   
+
 ```{r}
 yLR <- alpha_0 / (1 - alpha_1 - alpha_2)
 sigmaSq_yLR <- (1 - alpha_2)*sigmaSq / ((1 + alpha_2)*((1 - alpha_2)^2 - alpha_1^2))
