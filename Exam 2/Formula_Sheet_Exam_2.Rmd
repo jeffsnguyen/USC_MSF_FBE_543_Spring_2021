@@ -366,7 +366,7 @@ y_3 <- f(y_2)
   
 | Forecast Variable      | Forecast Value | 95% Confidence Interval Equation                               | 95% Confidence Interval                                                                     |
 |------------------------|------------------|----------------------------------------------------------------|---------------------------------------------------------------------------------------------|
-| $Y_1^F = -.5Y_0$ | $`r y_1`$        | $Y_{t+1}^F \pm 1.96\sqrt{\sigma^2}$                            | $P(`r y_1 - 1.96 * sqrt(sigmaSq)` \leqslant Y_{t+1} \leqslant `r y_1 + 1.96 * sqrt(sigmaSq)`) = .95$ |
+| $Y_1^F = -.5Y_0$ | $`r y_1`$        | $Y_{t+1}^F \pm 1.96\sqrt{\sigma^2}$                            | $P(`r y_1` - 1.96  \sqrt{`r sigmaSq`} \leqslant Y_{t+1} \leqslant `r y_1` + 1.96  \sqrt{`r sigmaSq`}) = .95$ |
 | $Y_2^F = -.5Y_1$ | $`r y_2`$        | $Y_{t+2}^F \pm 1.96\sqrt{\sigma^2(1+\alpha^2)}$                | $P(`r y_2 - 1.96*sqrt(sigmaSq*(1+alpha_1^2))` \leqslant Y_{t+2} \leqslant `r y_2 + 1.96*sqrt(sigmaSq*(1+alpha_1^2))`) = .95$             |
 | $Y_3^F = -.5Y_2$ | $`r y_3`$        | $Y_{t+3}^F \pm 1.96\sqrt{\sigma^2(1+\alpha_1^2 + \alpha_1^4)}$ | $P(`r y_3 - 1.96*sqrt(sigmaSq*(1+alpha_1^2+alpha_1^4))` \leqslant Y_{t+3} \leqslant `r y_3 + 1.96*sqrt(sigmaSq*(1+alpha_1^2+alpha_1^4))`) = .95$ |
   
