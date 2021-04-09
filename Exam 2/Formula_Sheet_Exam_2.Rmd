@@ -354,10 +354,10 @@ Note that ARIMA has "short memory" because of its recursive nature $\Rightarrow$
 ### AR(1) Model:  
 
 ```{r}
-y_0 <- 2
-sigmaSq <- 1.21
-alpha_0 <- 1.6
-alpha_1 <- .75
+y_0 <- 20
+sigmaSq <- .08225
+alpha_0 <- 2.5
+alpha_1 <- .7
 
 f <- function(y_t) {alpha_0 + alpha_1*y_t}
 y_1 <- f(y_0)
@@ -385,12 +385,12 @@ sigmaSq_yLR <- sigmaSq / (1 - alpha_1^2)
 ### AR(2) Model:  
 
 ```{r}
-alpha_0 <- 6
+alpha_0 <- 0
 alpha_1 <- .7
-alpha_2 <- .12
+alpha_2 <- .15
 y_0 <- 5
 y_1 <- 6
-sigmaSq <- 1.21
+sigmaSq <- 1.2
 f <- function(y_tMinus1, y_tMinus2) {alpha_0 + alpha_1*y_tMinus1 + alpha_2*y_tMinus2}
 y_2 <- f(y_1, y_0)
 y_3 <- f(y_2, y_1)
@@ -417,10 +417,10 @@ sigmaSq_yLR <- (1 - alpha_2)*sigmaSq / ((1 + alpha_2)*((1 - alpha_2)^2 - alpha_1
 ### MA(1) Model:  
 
 ```{r}
-alpha_0 <- 5
-beta_1 <- 1  # coefficient of epsilon_{t}
-beta_2 <- .3  # coeff of epsilon_{t-1}
-e_1 <- 2
+alpha_0 <- 10
+beta_1 <- .64  # coefficient of epsilon_{t}
+beta_2 <- 0  # coeff of epsilon_{t-1}
+e_1 <- 2.5
 e_2 <- 0
 e_3 <- 0
 e_4 <- 0
