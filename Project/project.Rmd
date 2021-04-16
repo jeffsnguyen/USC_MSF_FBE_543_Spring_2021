@@ -927,6 +927,37 @@ accuracy(pred_autoARIMA)
 
 ## 6) Test your ARIMA model for the stability of the ARIMA coefficients.  
   
+To test for stability of the ARIMA coefficients, we split the data in half, applies 2 separate ARIMA models and run an F-test.  
+
+```{r}
+# Splitting the data
+rHoldings1 <- rHoldings[1:10]
+rHoldings2 <- rHoldings[11:20]
+
+# Fitting ARIMA models
+fitAutoARIMA1 <- auto.arima(rHoldings1)
+fitAutoARIMA2 <- auto.arima(rHoldings2)
+
+# Review the ARIMA models
+summary(fitAutoARIMA1)
+summary(fitAutoARIMA2)
+```
+  
+We have the F-stat:  
+
+\begin{equation}
+  \begin{split}
+    F =& \frac{\sigma_1^2}{\sigma_2^2}  \\
+      =& \frac{0.006193}{0.003902}  \\
+      =& `r 0.006193/0.003902`  \\
+    F_{crit} =& 3.1789  \\
+    dof =& N - 1 = 10 - 1 = 9  \\
+    \alpha =& .05  \\
+  \end{split}
+\end{equation}
+  
+We notice a relative small F-stat, i.e. the differences in variances of two models are fairly insignificant, i.e. the coefficients of the ARIMA model are stable.  
+  
 ## 7) Test your ARIMA model for the existence of ARCH and GARCH and do proper corrections, if needed.  
   
 ## 8) Find different time-series measures of volatility for your portfolio returns (see the volatility file posted on Blackboard) and do a three-period ahead forecasting of the portfolio volatility. Compare the different measures of volatility with GARCH.  
