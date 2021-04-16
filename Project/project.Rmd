@@ -12,6 +12,12 @@ output:
 knitr::opts_chunk$set(echo = TRUE, envir=.GlobalEnv)
 ```
 
+```{r load-packages, include=TRUE}
+library(quantmod)
+library(forecast)
+library(aTSA)
+```
+
 **University of Southern California**  
 **Marshall School of Business**  
 **FBE 543 Forecasting and Risk Analysis**  
@@ -82,8 +88,6 @@ response function of the VAR and comment on the relationship.
 
 
 ```{r}
-library(quantmod)
-
 # Set start date and end date of data
 start_date <- "2016-01-01"
 end_date <- "2018-12-31"
@@ -664,7 +668,6 @@ rHoldings <- ts(ra)
 We look at the 3-period ahead forecasted value.  
 
 ```{r}
-library(forecast)
 rwf <- rwf(rHoldings, 3)
 rwf
 
@@ -849,7 +852,7 @@ summary(regExAnte)
 Perform a three-period-ahead ex-ante forecast of portfolio holdings returns:  
   
 ```{r}
-predExAnte <- forecast(regExAnte, newdata=data.frame(Market.Risk.Premium=c(0.021584390, -0.011891042, 0.098150254)))
+predExAnte <- forecast::forecast(regExAnte, newdata=data.frame(Market.Risk.Premium=c(0.021584390, -0.011891042, 0.098150254)))
 predExAnte
 ```
   
@@ -870,33 +873,78 @@ We have the 95% confidence interval for our forecast as follow:
   \end{split}
 \end{equation}
   
-### Confidence Interval of Forecasting  
-
-#### For Ex-Ante
-
 
 ## 5) Do an ARIMA model of your portfolio returns and use it for three-period ahead forecasting of the returns to portfolio. Write confidence interval. Estimate the accuracy statistics.  
+  
+Review the ACF plot for portfolio holding monthly returns:  
 
-6) Test your ARIMA model for the stability of the ARIMA coefficients.  
+```{r}
+acf(rHoldings, main="ACF")
+```
   
-7) Test your ARIMA model for the existence of ARCH and GARCH and do proper corrections, if needed.  
+And the PACF:  
+
+```{r}
+pacf(rHoldings, main="PACF")
+```
   
-8) Find different time-series measures of volatility for your portfolio returns (see the volatility file posted on Blackboard) and do a three-period ahead forecasting of the portfolio volatility. Compare the different measures of volatility with GARCH.  
+Perform an (A)DF Test:  
+```{r}
+adf.test(rHoldings)
+```
   
-9) Use the accuracy statistics of the different forecasting techniques to decide which technique fits the data best.  
+Fitting an auto-ARIMA model:  
+
+```{r}
+fitAutoARIMA <- auto.arima(rHoldings)
+summary(fitAutoARIMA)
+```
   
-10) Test whether your portfolio index conforms to the efficient market hypothesis.  
+Performing a three-period ahead forecasting:  
+
+```{r}
+pred_autoARIMA <- forecast::forecast(fitAutoARIMA, h=3)
+pred_autoARIMA
+plot(pred_autoARIMA)
+```
   
-11) Find 1% and 3% daily and monthly VaR of your portfolio.  
+Review the confidence interval:  
   
-12) Find 1% and 3% daily and monthly equity EVaR of your portfolio.  
+\begin{equation}
+  \begin{split}
+    \hat{Y}_t \pm& 1.96 \hat{\sigma}_{\epsilon}  \\
+    0.02796782 \pm& 1.96 * \sqrt{0.00548}  \\
+    0.02796782 \pm& 1.96 * \sqrt{0.00548}  \\  
+    0.02796782	 \pm& 1.96 * \sqrt{0.00548}  \\ 
+  \end{split}
+\end{equation}
   
-13) Graph the security Market Line (SML) of your portfolio and test whether you would add a stock of your own choice to the portfolio or not.  
+Review the accuracy statistics:  
+
+```{r}
+accuracy(pred_autoARIMA)
+```
+
+## 6) Test your ARIMA model for the stability of the ARIMA coefficients.  
   
-14) Do an intervention function analysis of the March 15th closing of US economy due to
+## 7) Test your ARIMA model for the existence of ARCH and GARCH and do proper corrections, if needed.  
+  
+## 8) Find different time-series measures of volatility for your portfolio returns (see the volatility file posted on Blackboard) and do a three-period ahead forecasting of the portfolio volatility. Compare the different measures of volatility with GARCH.  
+  
+## 9) Use the accuracy statistics of the different forecasting techniques to decide which technique fits the data best.  
+  
+## 10) Test whether your portfolio index conforms to the efficient market hypothesis.  
+  
+## 11) Find 1% and 3% daily and monthly VaR of your portfolio.  
+  
+## 12) Find 1% and 3% daily and monthly equity EVaR of your portfolio.  
+  
+## 13) Graph the security Market Line (SML) of your portfolio and test whether you would add a stock of your own choice to the portfolio or not.  
+  
+## 14) Do an intervention function analysis of the March 15th closing of US economy due to
 COVID19. Did the event have any effect on return to your portfolio.  
   
-15) Do a 2-variable VAR between your portfolio index and S&P500 index. Graph the Impulse
+## 15) Do a 2-variable VAR between your portfolio index and S&P500 index. Graph the Impulse
 response function of the VAR and comment on the relationship.  
 
 
