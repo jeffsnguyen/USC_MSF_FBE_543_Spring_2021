@@ -227,7 +227,7 @@ Since the investor's objective is to minimize risk subjected to a minimum return
 Let $x_i$ denotes the weight of the investment in asset i $(i = 1,2,3,4,5)$, and assume all money is invested in i, meaning $\sum {x_i} = x_1 + x_2 + x_3 + x_4 + x_5 = 1$.
 
 \begin{equation}
-  \begin{aligned}
+  \begin{split}
     \text {The returns of the portfolio is:} \\
     R_{p,x} & = x_1 * r_1 + x_2 * r_2 + x_3 * r_3 + x_4 * r_4 + x_5 * r_5 \\
     \text {The expected returns on the portfolio is:} \\
@@ -235,13 +235,13 @@ Let $x_i$ denotes the weight of the investment in asset i $(i = 1,2,3,4,5)$, and
               & = x_1 * \mu_1 + x_2 * \mu_2 + x_3 * \mu_3 + x_4 * \mu_4 + x_5 * \mu_5 \\
     \text {The variance of the portfolio returns is:} \\
     \sigma_{p,x}^2 & = var(R_{p,x})  \\
-  \end{aligned}
+  \end{split}
 \end{equation}
 
 Formulating the Markowitz portfolio problem:  
 
 \begin{equation}
-  \begin{aligned}
+  \begin{split}
      \text {The investor's objective is:} \\
      max \quad \mu_p & = w' * \mu \quad \text{s.t.} \\
      \sigma_p^2 & = w' * (\sum) * w \quad \text{and} \quad w'*I = 1  \\
@@ -251,50 +251,50 @@ Formulating the Markowitz portfolio problem:
      \mu & = \quad \text{matrix of mean returns of asset in the portfolio} \\
      \sum & = \quad \text{Variance-covariance matrix of asset returns in the the portfolio} \\
       w'*I & = \sum_{i=1}^{n} w_n \quad \text{or the sum weights of the asset in the portfolio, I is notation for identity matrix} \\
-  \end{aligned}
+  \end{split}
 \end{equation}
 
 Let $\mu_{p,0}$ denotes a target expected return level. Formulate the problem:  
 
 \begin{equation}
-  \begin{aligned}
+  \begin{split}
      min \quad \sigma_{p,w}^2 & = w' * (\sum) * w  \quad \text{s.t.} \\
      \mu_p & = w' * \mu = \mu_{p,0}, \quad \text{and} \quad w'*I = 1 \\
-  \end{aligned}
+  \end{split}
 \end{equation}
 
 To solve this, form the Lagrangian function:
 
 \begin{equation}
-  \begin{aligned}
+  \begin{split}
     L(w, \lambda_1, \lambda_2) & = w'*\sum*w + \lambda_1*(w'*\mu - \mu_{p,0}) + \lambda_2*({w'*I - 1}) \\
-  \end{aligned}
+  \end{split}
 \end{equation}
   
 Because there are two constraints ($w'*\mu = \mu_{p,0}$ and $w'1 = 1$) there are two Langrange multipliers $\lambda_1$ and $\lambda_2$. The first order condition for a minimum are the linear equations:  
 
 \begin{equation}
-  \begin{aligned}
+  \begin{split}
     \frac{\partial L(w, \lambda_1, \lambda_2)}{\partial w} & = \frac{\partial (\sum * w^2)}{\partial w} + \frac{\partial (\lambda_1*(w'*\mu - \mu_{p,0}))}{\partial w} + \frac{\lambda_2*({w'*I - 1})}{\partial w} = 0  \\
     \frac{\partial L(w, \lambda_1, \lambda_2)}{\partial \lambda_1} & = 0 \\
     \frac{\partial L(w, \lambda_1, \lambda_2)}{\partial \lambda_2} & = 0 \\
-  \end{aligned}
+  \end{split}
 \end{equation}
 
 Simplify, we have:  
 
 \begin{equation}
-  \begin{aligned}
+  \begin{split}
     \frac{\partial L(w, \lambda_1, \lambda_2)}{\partial w} & = 2*\sum*w + \lambda_1*\mu + \lambda_2*I = 0  \\
     \frac{\partial L(w, \lambda_1, \lambda_2)}{\partial \lambda_1} & =  w'*\mu - \mu_{p,0} = 0  \\
     \frac{\partial L(w, \lambda_1, \lambda_2)}{\partial \lambda_2} & =  w'*I - 1 = 0  \\
-  \end{aligned}
+  \end{split}
 \end{equation}
 
 Rewrite in matrix form:  
 
 \begin{equation}
-  \begin{aligned}
+  \begin{split}
     \begin{pmatrix}
             2*\sum    & \mu   & I  \\
             \mu'      & 0     & 0  \\
@@ -312,13 +312,13 @@ Rewrite in matrix form:
             \mu_{p,0}     \\
             I       \\
     \end{pmatrix}
-  \end{aligned}
+  \end{split}
 \end{equation}
 
 or  
 
 \begin{equation}
-  \begin{aligned}
+  \begin{split}
     A * z_w & = b_0 \\
     \text{where}\\
     A & = 
@@ -339,15 +339,15 @@ or
             \mu_{p,0}     \\
             I       \\
     \end{pmatrix}
-  \end{aligned}
+  \end{split}
 \end{equation}
 
 The solution for $z_w$ is:  
 
 \begin{equation}
-  \begin{aligned}
+  \begin{split}
     z_w & = A^{-1} * b_0
-  \end{aligned}
+  \end{split}
 \end{equation}  
   
 The variance-covariance matrix is as follow:  
@@ -536,7 +536,7 @@ legend("topright",c("short sale", "TangencyPorfolio", "CAL"), cex=.8, col=c("gre
 The expected risk premium of the portfolio based on the CAPM model is given as:  
 
 \begin{equation}
-  \begin{aligned}
+  \begin{split}
     E(R_a - R_f) & = \beta * (R_m - R_f)  \\
     \text{or}  \\
     R_a & = R_f + \beta * (R_m - R_f)  \\
@@ -548,20 +548,20 @@ The expected risk premium of the portfolio based on the CAPM model is given as:
     X & = R_m - R_f  \\
     \beta & = \text{Market risk or systematic risk}  \\
     \epsilon & = \text{stochastic error term} \\
-  \end{aligned}
+  \end{split}
 \end{equation} 
   
 Here, the risk premium of the S&P 500 is the independent variable and the expected risk premium of the portfolio is the dependent variable.  
 
 Hypothesis for regression:  
 \begin{equation}
-  \begin{aligned}
+  \begin{split}
     H_0: \alpha & = 0  \\
     H_a: \alpha & \neq 0  \\
     \text{and}  \\
     H_0: \beta & = 0  \\
     H_a: \beta & \neq 0  \\
-  \end{aligned}
+  \end{split}
 \end{equation}
 
 ```{r}
@@ -608,10 +608,10 @@ Standard Error of Regression:
 We can see that the Standard Error of Regression is $S.E. = .07458$.  
 From this, we can calculate the forecasting efficiency statistic to be:  
 \begin{equation}
-  \begin{aligned}
+  \begin{split}
     \frac{S.E.}{\overline Y} & = \frac{.05618}{`r Y_bar`}   \\
                              & = `r round(.07458*100/Y_bar,2)`\% > 10\%  \\
-  \end{aligned}
+  \end{split}
 \end{equation}
 This statistic implies that this is not a good forecasting model.  
 
@@ -686,7 +686,7 @@ We look at the 3-period ahead forecasted value.
 ```{r}
 ma5 <- ma(rHoldings, order=5)
 
-plot(ra, main="Portfolio Holdings Monthly Returns Moving Average Order of 5 Forecast", type = "l")
+plot(ra, main="Portfolio Holdings Monthly Returns MA5 Forecast", type = "l")
 lines(ma5, col="red")
 ```
   
@@ -698,7 +698,7 @@ We look at the 3-period ahead forecasted value.
 ```{r}
 ma15 <- ma(rHoldings, order=15)
 
-plot(ra, main="Portfolio Holdings Monthly Returns Moving Average Order of 15 Forecast", type = "l")
+plot(ra, main="Portfolio Holdings Monthly Returns MA15 Forecast", type = "l")
 lines(ma15, col="red")
 ```
   
@@ -740,9 +740,6 @@ accuracy(fit2)
   
 ```{r}
 #Holt Trend Model
-#Forecast equation ŷft+h = lt + hbt
-#Level equation lt = αyt + (1−α)(lt−1 + bt−1), α Smoothing coef for Level
-#Trend equation bt = β(lt − lt−1) + (1−β)bt−1 , β Smoothing coef for Trend
 holt1 <- holt(ra, alpha=0.8, beta=0.2, initial="simple", h=3) 
 plot(holt1, main="Holt Exponential Smoothing, Portfolio Holdings", fcol="white", type="o")
 lines(fitted(holt1), col="blue", type="o")
@@ -761,17 +758,124 @@ accuracy(holt1)
 ```
   
 ### Holt-Winter Seasonal Method:  
-
+  
+There might not be seasonality in our data to run the Holt-Winter model. The numerical method is shown below.  
 ```{r}
-hws2 <- hw(rHoldings,seasonal="multiplicative")
-plot(hws2, plot.conf=FALSE, type="o", fcol="white")
-lines(fitted(hws1), col="red", lty=2)
+#hws2 <- hw(rHoldings)
+#plot(hws2, plot.conf=FALSE, type="o", fcol="white")
+#lines(fitted(hws1), col="red", lty=2)
 ```
 
 
-4) Start with the regression analysis and forecasting of your portfolio returns. Use the CAPM and three-factor CAPM (Fama-French) models to estimate the coefficients of the models and use them for forecasting. Do a 10-days ex-post forecasting of the portfolio risk premiums and compare the forecasted value to actual ones. Do a three-period-ahead (ex-ante) forecasting of the portfolio risk premiums and write confidence intervals.  
+## 4) Start with the regression analysis and forecasting of your portfolio returns. Use the CAPM model to estimate the coefficients of the models and use them for forecasting. Do a 10-days ex-post forecasting of the portfolio risk premiums and compare the forecasted value to actual ones. Do a three-period-ahead (ex-ante) forecasting of the portfolio risk premiums and write confidence intervals.  
   
-5) Do an ARIMA model of your portfolio returns and use it for three-period ahead forecasting of the returns to portfolio. Write confidence interval. Estimate the accuracy statistics.  
+### Regression of Market Risk Premium and Portfolio Risk Premium  
+
+First we run the linear regression and examine its result.    
+
+```{r}
+# Recall Y is the portfolio risk premium from January 2019 to August 2020
+# as calculated above.
+# Likewise, rTNX1 is the risk free rate for the same period.
+reg <- lm(Portfolio.Risk.Premium ~ Market.Risk.Premium, data=data1)
+summary(reg)
+confint(reg)
+```
+
+We can visual the result as follow:
+
+```{r}
+plot(data1, col='red', main="Relationship Between Market & Portfolio Risk Premium", pch=20, cex=1)
+
+# Add fit lines
+abline(reg, col="blue")  # Regression line Y ~ X
+lines(lowess(X,Y), col="black", lty=2)  # Lowess line (X,Y)
+
+legend("bottomleft",c("Linear fit line", "Lowess line"), cex=.8, col=c("blue", "black"), lty=1:2)
+```
+  
+### Ex-post Forecasting  
+  
+For ex-post forecasting, since our data is monthly portfolio returns with 20 observations, it makes more sense to do split the data on a 5 months ex-post forecasting instead of 10 days as recommended by the guide. Splitting the data:  
+
+```{r}
+data1_1 <- data1[1:15,]
+data1_2 <- data1[16:20,]
+```
+  
+Running regression on the $data1_1$:  
+
+```{r}
+regExPost <- lm(Portfolio.Risk.Premium ~ Market.Risk.Premium, data=data1_1)
+summary(regExPost)
+```
+  
+Doing the Ex-Post Forecasting:  
+
+```{r}
+predExPost <- predict(regExPost, newdata=data1_2, se.fit=TRUE)
+predExPost
+```
+  
+Plotting the results:  
+  
+```{r}
+plot(data1_2$Portfolio.Risk.Premium, type="l", col="red")
+lines(regExPost$fitted.values, col="blue")
+```
+  
+We have the 95% confidence intervals for our forecast as follow:  
+
+\begin{equation}
+  \begin{split}
+    \hat{Y}_t \pm& 1.96 \hat{\sigma}_{\epsilon}  \\
+    -0.017120773 \pm& 1.96 * 0.07038  \\
+    0.004988486 \pm& 1.96 * 0.07038  \\  
+    0.012657516 \pm& 1.96 * 0.07038  \\ 
+    0.002210383 \pm& 1.96 * 0.07038  \\
+    -0.002531426 \pm& 1.96 * 0.07038  \\
+  \end{split}
+\end{equation}
+
+### Ex-ante Forecasting  
+  
+Running the regression:
+
+```{r}
+regExAnte <- lm(Portfolio.Risk.Premium ~ Market.Risk.Premium, data=data1)
+summary(regExAnte)
+```
+  
+Perform a three-period-ahead ex-ante forecast of portfolio holdings returns:  
+  
+```{r}
+predExAnte <- forecast(regExAnte, newdata=data.frame(Market.Risk.Premium=c(0.021584390, -0.011891042, 0.098150254)))
+predExAnte
+```
+  
+Graphing the regression and its forecast:  
+
+```{r}
+plot(predExAnte, type="l")
+```
+  
+We have the 95% confidence interval for our forecast as follow:  
+
+\begin{equation}
+  \begin{split}
+    \hat{Y}_t \pm& 1.96 \hat{\sigma}_{\epsilon}  \\
+    0.025223443 \pm& 1.96 * 0.07488  \\
+    0.033080188\pm& 1.96 * 0.07488  \\  
+    0.007253296	 \pm& 1.96 * 0.07488  \\ 
+  \end{split}
+\end{equation}
+  
+### Confidence Interval of Forecasting  
+
+#### For Ex-Ante
+
+
+## 5) Do an ARIMA model of your portfolio returns and use it for three-period ahead forecasting of the returns to portfolio. Write confidence interval. Estimate the accuracy statistics.  
 
 6) Test your ARIMA model for the stability of the ARIMA coefficients.  
   
