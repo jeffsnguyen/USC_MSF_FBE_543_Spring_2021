@@ -968,7 +968,74 @@ We notice a relative small F-stat, i.e. the differences in variances of two mode
   
 ## 11) Find 1% and 3% daily and monthly VaR of your portfolio.  
   
+### 1% VaR  
+```{r}
+# 1% VaR Holding Portfolio
+VaR_threshold <- 1
+
+# Set scaling factor based on the period of evaluation
+# In this example: {1: '1 year', 1/2: '6 months', 1/12: '1 month', 1/250: '1 day'}
+
+# 1% 1 month VaR
+scalingFactor <- 1/12
+z_stat <- qnorm(VaR_threshold/100, 0, 1, lower.tail = TRUE)
+VaR_1mo_p_1percent <- ROPT*scalingFactor + SDOPT*sqrt(scalingFactor) * z_stat
+
+# 1% 1 day VaR
+scalingFactor <- 1/250
+VaR_1day_p_1percent <- ROPT*scalingFactor + SDOPT*sqrt(scalingFactor) * z_stat
+```
+  
+The 1% monthly VaR is $`r VaR_1mo_p_1percent`$. The 1% daily VaR is $`r VaR_1day_p_1percent`$.  
+  
+### 3% VaR  
+```{r}
+# 1% VaR Holding Portfolio
+VaR_threshold <- 3
+
+# Set scaling factor based on the period of evaluation
+# In this example: {1: '1 year', 1/2: '6 months', 1/12: '1 month', 1/250: '1 day'}
+
+# 1% 1 month VaR
+scalingFactor <- 1/12
+z_stat <- qnorm(VaR_threshold/100, 0, 1, lower.tail = TRUE)
+VaR_1mo_p_3percent <- ROPT*scalingFactor + SDOPT*sqrt(scalingFactor) * z_stat
+
+# 1% 1 day VaR
+scalingFactor <- 1/250
+VaR_1day_p_3percent <- ROPT*scalingFactor + SDOPT*sqrt(scalingFactor) * z_stat
+```
+  
+The 1% monthly VaR is $`r VaR_1mo_p_3percent`$. The 1% daily VaR is $`r VaR_1day_p_3percent`$.  
+
 ## 12) Find 1% and 3% daily and monthly equity EVaR of your portfolio.  
+  
+Recall that the Risk Adjusted Portfolio or RAP, is the sum weighted values of assets in the portfolio, weighted by the corresponding assets’ $\beta_i$, i.e. $\sum \beta_i R_i$.  
+  
+Recall the summary statistics of each stock:  
+
+Instruments   | Mean Returns          | Variance of Returns | Beta (5Y Monthly)
+---           | ---                   | ---                 | ---    
+MSFT          | `r MSFT_return_mean`  | `r MSFT_return_var` | .87
+GWPH          | `r GWPH_return_mean`  | `r GWPH_return_var` | 1.96
+DIS           | `r DIS_return_mean`   | `r DIS_return_var`  | 1.08
+CAT           | `r CAT_return_mean`   | `r CAT_return_var`  | .98
+AMZN          | `r AMZN_return_mean`  | `r AMZN_return_var` | 1.3
+  
+
+```{r}
+betas <- c(.87, 1.96, 1.08, .98, 1.3)
+RAP <- 100*sum(WOPT*betas)
+```
+  
+We have the Risk Adjusted Portfolio value as $`r RAP``$.  
+
+Recall that $EVaR = RAP * VaR$. Thus:  
+  
+The 1% monthly EVaR is $`r RAP*VaR_1mo_p_1percent`$. The 1% daily VaR is $`r RAP*VaR_1day_p_1percent`$.  
+
+Likewise, the 3% monthly EVaR is $`r RAP*VaR_1mo_p_3percent`$. The 3% daily VaR is $`r RAP*VaR_1day_p_3percent`$.  
+  
   
 ## 13) Graph the security Market Line (SML) of your portfolio and test whether you would add a stock of your own choice to the portfolio or not.  
   
