@@ -1,0 +1,121 @@
+---
+title: "Assignment 05, Question 1"
+author: "Jeff Nguyen"
+date: "24/04/2021"
+output:
+  pdf_document: default
+  html_document:
+    code_folding: "hide"
+---
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(warning=FALSE, message=FALSE) 
+```
+
+**University of Southern California**  
+**Marshall School of Business**  
+**FBE 543 Forecasting and Risk Analysis**
+
+#**Question 1**  
+
+
+```{r}
+library(quantmod)
+
+# Set start date and end date of data
+start_date <- "2014-01-01"
+end_date <- "2021-03-24"
+
+# Get data
+getSymbols("JPM", src = "yahoo", , from = start_date, to = end_date) 
+
+adjJPM_mo <- to.monthly(JPM)$JPM.Adjusted  # Monthly Adjusted Closing Price
+rJPM_mo <- diff(log(adjJPM_mo))[-1]  # Monthly Returns
+```
+  
+## Data Observation:  
+
+Observing monthly adj. closing prices:  
+```{r}
+library(forecast)
+
+ggtsdisplay(adjJPM_mo, main="JP Morgan Monthly Adj. Close Price", plot.type="scatter")
+```
+  
+Observing monthly returns:  
+```{r}
+ggtsdisplay(rJPM_mo, main="JP Morgan Monthly Returns", plot.type="scatter")
+```
+  
+**Remarks**  
+We can see JPM's monthly adjusted closing price' lag plots exhibit a linear pattern, implying that the data is strongly non-random and thus, a first-order autoregressive model might be appropriate.  
+  
+\begin{equation}
+  \begin{aligned}
+    y_t =& \beta_0 + \beta_1 y_{t-1} + \epsilon_t
+  \end{aligned}
+\end{equation}
+  
+On the other hand, JPM's monthly returns's lag plot does not exhibit any obvious patterns, implying that the data is strongly random. 
+
+  
+## 1. Test for the stationarity of the adjusted closing prices for JPM.  
+  
+We run Augmented Dickey Fuller Test for JPM. Recall that the null hypothesis for Dickey-Fuller Test is that a unit root is present in our autoregressive model, meaning the variable is a non-stationary variable.  
+  
+```{r}
+library(aTSA)
+
+adf.test(adjJPM_mo)
+```
+  
+We can observe $p-value = .99 > .05$. Thus, we fail to reject the null hypothesis. In other words, JPM monthly adjusted closing price has a unit root and therefore, is a non-stationary variable.
+  
+## 2. Test for the stationarity of the returns for JPM.  
+
+Similarly, we run (A)DF test for JPM's monthly returns:  
+  
+```{r}
+adf.test(rJPM_mo)
+```
+  
+We can observe $p-value = .99 > .05$. Thus, we fail to reject the null hypothesis. In other words, JPM monthly returns has a unit root and therefore, is a non-stationary variable.
+  
+## 3. Run the best ARIMA model for JPM returns.  
+  
+We run auto ARIMA:
+
+```{r}
+model1ARIMA <- auto.arima(rJPM_mo)
+summary(model1ARIMA)
+```
+  
+We can see that with $ARIMA(0,0,0)$, we have great $ACF1$ statistics, implying a good fit for forecasting.  
+  
+## 4. Test for the existence of heteroskedasticity on the residuals of the JPM’s ARIMA model.  
+
+```{r}
+plot(model1ARIMA$residuals, main="Plot of Residuals")
+```
+  
+Testing for hetereoskedacity on the residuals of the ARIMA model above:  
+
+
+## 11. Run an ARCH and/or GARCH model on JPM’s returns data.  
+  
+```{r}
+library(rugarch)
+
+# Write Specification of Your GARCH Model using "sGrach" or standard GARCH Mode.
+garch1 <- ugarchspec(variance.model=list(model="sGARCH", garchOrder=c(1, 1)), mean.model=list(armaOrder=c(1, 1)), distribution.model="std")
+
+# Fit the Model to Data
+garch1_rJPM_mo <- ugarchfit(spec=garch1, data=rJPM_mo)
+garch1_rJPM_mo
+```
+  
+## 12. Do a three-period ahead forecast of the conditional variance.  
+```{r}
+# Forecast Model
+predict_rJPM_mo <- ugarchboot(garch1_rJPM_mo,n.ahead=3, method=c("Partial", "Full")[1])
+plot(predict_rJPM_mo, which=2)
+```
