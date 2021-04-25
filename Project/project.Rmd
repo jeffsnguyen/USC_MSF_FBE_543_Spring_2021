@@ -422,6 +422,7 @@ adjGWPH1 <- GWPH$GWPH.Adjusted
 adjDIS1 <- DIS$DIS.Adjusted
 adjCAT1 <- CAT$CAT.Adjusted
 adjAMZN1 <- AMZN$AMZN.Adjusted
+adjGSPC <- GSPC$GSPC.Adjusted
 
 investedAmount <- 100
 
@@ -959,7 +960,17 @@ We have the F-stat:
 We notice a relative small F-stat, i.e. the differences in variances of two models are fairly insignificant, i.e. the coefficients of the ARIMA model are stable.  
   
 ## 7) Test your ARIMA model for the existence of ARCH and GARCH and do proper corrections, if needed.  
-  
+
+```{r}
+library(rugarch)
+
+#Write Specification of Your GARCH Model using "sGrach" or standard GARCH Mode.
+garch1 <- ugarchspec(variance.model=list(model="sGARCH", garchOrder=c(1, 1)), mean.model=list(armaOrder=c(1, 1)), distribution.model="std")
+#Fit the Model to Data
+rHoldings_garch1 <- ugarchfit(spec=garch1, data=rHoldings)
+rHoldings_garch1
+```
+
 ## 8) Find different time-series measures of volatility for your portfolio returns (see the volatility file posted on Blackboard) and do a three-period ahead forecasting of the portfolio volatility. Compare the different measures of volatility with GARCH.  
   
 ## 9) Use the accuracy statistics of the different forecasting techniques to decide which technique fits the data best.  
@@ -1039,13 +1050,107 @@ Likewise, the 3% monthly EVaR is $`r RAP*VaR_1mo_p_3percent`$. The 3% daily VaR 
   
 ## 13) Graph the security Market Line (SML) of your portfolio and test whether you would add a stock of your own choice to the portfolio or not.  
   
-## 14) Do an intervention function analysis of the March 15th closing of US economy due to
-COVID19. Did the event have any effect on return to your portfolio.  
+## 14) Do an intervention function analysis of the March 15th closing of US economy due to COVID19. Did the event have any effect on return to your portfolio.  
   
-## 15) Do a 2-variable VAR between your portfolio index and S&P500 index. Graph the Impulse
-response function of the VAR and comment on the relationship.  
+Observing the holdings data:
 
+```{r}
+ggtsdisplay(holdings, main="Portfolio Holdings Daily Closing Price", plot.type="scatter")
+```
+  
+Dividing the data into two periods, before and after the COVID-19 lockdown. The last trading day before lockdown was March 13, 2020.  
 
+```{r}
+holdings1 <- holdings[1:321,]
+holdings2 <- holdings[322:438,]
+```
+  
+### Traditional method  
+
+We test whether the means and variance before and after the lockdown are the same: 
+
+#### Variance Test:  
+
+```{r}
+var.test(holdings1, holdings2)
+```
+  
+From the result, we reject the null hypothesis that true ratio of variances is equal to 1, i.e. they are different before and after lockdown.  
+
+#### Means Test:  
+
+```{r}
+t.test(holdings1, holdings2, var.equal = FALSE )
+```
+  
+Similarly, we reject the null hypothesis that true difference in means is equal to 0, i.e. the means prior to and post of lockdown are different.  
+
+### Time Series Method  
+
+First, we find the order of ARIMA using the data before lockdown:  
+
+```{r}
+fitlockdown1 <- auto.arima(holdings1)
+fitlockdown1
+```
+  
+We can observe an ARIMA(1,1,3) model. Next, we define the dummy variable and fit intervention function using all data:  
+
+```{r}
+holdings <- cbind(holdings, dummy=0)  # add a column of 0 to the df
+holdings[321,2] = 1  ## replace the dummy element on March 13, 2020 to be 1
+
+fitlockdownTS2 <- forecast::Arima(holdings[,1], xreg=holdings[,2], order=c(1, 1, 3))
+summary(fitlockdownTS2)
+```
+  
+Next, we run VAR model to estimate the effect of lockdown on the time path of the adjustment:
+
+```{r}
+library(vars)
+var <- VAR(holdings, p=5, type="const")
+summary(var)
+```
+  
+Run Impulse Response Function:  
+
+```{r}
+IRF <- irf(var, impulse.variable = 2, response.variable = 1,  t = NULL, nhor = 20, scenario = 2, draw.plot = TRUE)
+IRF
+```
+  
+And graph:  
+
+```{r}
+plot(IRF)
+```
+  
+We can observe that the $\lambda$ coefficient of the dummy is statistically significant, implying that the lockdown has changed the mean.  
+  
+## 15) Do a 2-variable VAR between your portfolio index and S&P500 index. Graph the Impulse response function of the VAR and comment on the relationship.  
+
+We run VAR model to estimate the effect of lockdown on the time path of the adjustment:
+
+```{r}
+holdingsGSPC <- cbind(holdings[1], adjGSPC)
+var_holdingsGSPC <- VAR(holdingsGSPC, p=5, type="const")
+summary(var_holdingsGSPC)
+```
+  
+Run Impulse Response Function:  
+
+```{r}
+IRF_holdingsGSPC <- irf(var_holdingsGSPC, impulse.variable = 2, response.variable = 1,  t = NULL, nhor = 20, scenario = 2, draw.plot = TRUE)
+IRF_holdingsGSPC
+```
+  
+And graph:  
+
+```{r}
+plot(IRF_holdingsGSPC)
+```
+  
+We can observe that the $\lambda$ coefficient of the S&P 500 is significant, meaning that the movement of S&P 500 has an effect on the movement of the portfolio holdings.  
 # Citations
 
 “Amazon.com, Inc. (AMZN) Stock Price, News, Quote &amp; History.” Yahoo! Finance, Yahoo!, 14 Nov. 2020, ca.finance.yahoo.com/quote/amzn/?p=amzn.
