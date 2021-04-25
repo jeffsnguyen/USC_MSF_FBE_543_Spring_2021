@@ -23,18 +23,19 @@ library(quantmod)
 
 # Set start date and end date of data
 start_date <- "2014-01-01"
-end_date <- "2021-03-24"
+end_date <- "2021-03-23"
 
 # Get data
 getSymbols("JPM", src = "yahoo", , from = start_date, to = end_date) 
 
 adjJPM_mo <- to.monthly(JPM)$JPM.Adjusted  # Monthly Adjusted Closing Price
 rJPM_mo <- diff(log(adjJPM_mo))[-1]  # Monthly Returns
+
 ```
   
 ## Data Observation:  
 
-Observing monthly adj. closing prices:  
+Observing monthly adjusted closing prices:  
 ```{r}
 library(forecast)
 
@@ -89,16 +90,50 @@ model1ARIMA <- auto.arima(rJPM_mo)
 summary(model1ARIMA)
 ```
   
-We can see that with $ARIMA(0,0,0)$, we have great $ACF1$ statistics, implying a good fit for forecasting.  
+We can observe that ARIM(0,0,0) model with non-zero mean represents a White Noise model with independent and identically distributed data.
   
 ## 4. Test for the existence of heteroskedasticity on the residuals of the JPM’s ARIMA model.  
 
 ```{r}
-plot(model1ARIMA$residuals, main="Plot of Residuals")
+residuals_model1ARIMA <- model1ARIMA$residuals
+plot(residuals_model1ARIMA, main="Plot of Residuals")
+
+residualsSq_model1ARIMA <- residuals_model1ARIMA^2
 ```
   
-Testing for hetereoskedacity on the residuals of the ARIMA model above:  
+Testing for hetereoscedacity on the residuals of the ARIMA model above using Breusch-Pagan Test: 
+  
+```{r}
+library(lmtest)
 
+reg_residualsSq_model1ARIMA <- lm(residualsSq_model1ARIMA ~ rJPM_mo)
+bp_residualsSq_model1ARIMA <- bptest(reg_residualsSq_model1ARIMA)
+
+bp_residualsSq_model1ARIMA
+```
+  
+We can observe $p-value=.01343 < .05$, thus we reject the null-hypothesis and assume hetereoscedacity of the residuals of the ARIMA model for monthly JPM stock returns.  
+  
+Similarly, we attempt a Goldfield-Quant test:  
+
+```{r}
+gq_residualsSq_model1ARIMA <- gqtest(reg_residualsSq_model1ARIMA)
+gq_residualsSq_model1ARIMA
+```
+  
+We can observe similar result with the Breusch-Pagan test as $p-value = 1.308e-07 < .05$, i.e. we reject the null hypothesis and assume hetereoscedacity for the residuals of the ARIMA model for monthly returns.
+  
+## 5. Find the historical measure of the volatility of the JPM’s returns.  
+  
+Recall the historical volatility measure:  
+
+\begin{equation}
+  \begin{split}
+    \sigma^2_{hist} =& \frac{\sum (r - \overline{r})^2}{n-1}   \\
+    \text{where} r =& \, \text{monthly stock returns}  \\
+    n =& \, \text{number of observations}   \\
+  \end{split}
+\end{equation}
 
 ## 11. Run an ARCH and/or GARCH model on JPM’s returns data.  
   
