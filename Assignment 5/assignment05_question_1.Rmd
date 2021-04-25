@@ -130,10 +130,93 @@ Recall the historical volatility measure:
 \begin{equation}
   \begin{split}
     \sigma^2_{hist} =& \frac{\sum (r - \overline{r})^2}{n-1}   \\
-    \text{where} r =& \, \text{monthly stock returns}  \\
+    \text{where} \, r =& \, \text{monthly stock returns}  \\
     n =& \, \text{number of observations}   \\
   \end{split}
 \end{equation}
+
+```{r}
+mean_rJPM_mo <- mean(rJPM_mo)
+sigmaSq_hist <- sum((rJPM_mo - mean_rJPM_mo)^2 / (length(rJPM_mo) - 1))
+sigmaSq_hist
+```
+  
+Thus, $\sigma^2_{hist} = `r sigmaSq_hist`$.
+  
+## 6. Find the Exponentially Weighted Moving Average (EWMA) measure of the volatility of JPM’s returns.  
+  
+The EWMA measure of volatility is the exponential smoothing of the square of JPM's monthly returns. We have:  
+
+```{r}
+rJPM_mo_Sq <- rJPM_mo^2
+
+#Simple Exponential Smoothing
+fit1 <- ses(rJPM_mo_Sq, alpha=0.2, initial="simple", h=3)
+fit2 <- ses(rJPM_mo_Sq, alpha=0.6, initial="simple", h=3)
+fit3 <- ses(rJPM_mo_Sq, h=3)
+plot(fit1, main="Simple Exponential Smoothing, Monthly JPM Returns", fcol="white", type="o")
+lines(fitted(fit1), col="blue", type="o")
+lines(fitted(fit2), col="red", type="o")
+lines(fitted(fit3), col="green", type="o")
+lines(fit1$mean, col="blue", type="o")
+lines(fit2$mean, col="red", type="o")
+lines(fit3$mean, col="green", type="o")
+legend("topleft",lty=1, col=c(1,"blue","red","green"), 
+       c("data", expression(alpha == 0.2), expression(alpha == 0.6),
+         expression(alpha == 0.89)),pch=1)
+```
+  
+Recall:
+
+\begin{equation}
+  \begin{split}
+    \sigma^2_{EWMA} =& (1 - \lambda) \sum \lambda (r - \overline{r})^2  \\
+    \text{where} \, \lambda =& .94  \\
+  \end{split}
+\end{equation}
+
+```{r}
+lambda <- .94
+sigmaSq_EWMA <- (1-lambda) * sum(lambda * (rJPM_mo - mean_rJPM_mo)^2)
+sigmaSq_EWMA
+```
+  
+We can see that $\sigma^2_{EWMA} = `r sigmaSq_EWMA`$.
+
+## 7. Test whether the two measures of the volatility, historical and EWMA, are statistically the same.  
+
+We can see that $\sigma^2_{hist} = `r sigmaSq_hist` \neq `r sigmaSq_EWMA` = \sigma^2_{EWMA}$. Thus, they are not the same.  
+  
+## 8. Estimate an auto-regression model of the volatility for JPM’s returns using r^2 and log(High/low) as measures of volatility. Use the model to forecast next three-periods conditional variance.  
+  
+### Estimating ARIMA model of JPM's monthly returns volatility using r^2  
+
+```{r}
+fit4 <- auto.arima(rJPM_mo_Sq)
+fit4
+```
+  
+We can see the model is again, a White Noise model. Forecasting the next three periods:  
+
+```{r}
+fcast4 <-forecast::forecast(fit4, h=3)
+fcast4
+plot(fcast4)
+```
+  
+### Estimating ARIMA model of JPM's monthly returns volatility using $\ln{H/L}$  
+  
+```{r}
+lnJPM_HL <- log(to.monthly(JPM)$JPM.High/to.monthly(JPM)$JPM.Low)[-1]
+
+fit5 <- auto.arima(lnJPM_HL)
+fit5
+
+fcast5 <-forecast::forecast(fit5, h=3)
+fcast5
+plot(fcast5)
+```
+  
 
 ## 11. Run an ARCH and/or GARCH model on JPM’s returns data.  
   
