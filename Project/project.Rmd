@@ -12,7 +12,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE, envir=.GlobalEnv)
 ```
 
-```{r load-packages, include=TRUE}
+```{r load-packages, include=FALSE}
 library(quantmod)
 library(forecast)
 library(aTSA)
@@ -23,10 +23,7 @@ library(aTSA)
 **FBE 543 Forecasting and Risk Analysis**  
 **Spring 2021**  
 **Directed by Professor Mohammad Safarzadeh**   
-
-# **Table of Contents**
-
-# **Abstract**  
+  
 
 # **Introduction**  
 We selected the following 5 securities to base our analysis of impact of COVID-19 on a CAPM model of 5 stocks upon.
@@ -152,26 +149,38 @@ EretTabl <- data.frame(reMSFT, reGWPH, reDIS, reCAT, reAMZN)
 # Excess return data frame
 retTabl <- retTabl[-1,]  # remove missing data due to lagging
 EretTabl <- EretTabl[-1,]  # remove missing data due to lagging
-priceMat <- matrix(c(MSFT, GWPH, DIS, CAT, AMZN), nrow= length(MSFT), ncol=5, byrow=TRUE)  # creates a matrix of prices
+priceMat <- matrix(c(MSFT, GWPH, DIS, CAT, AMZN), 
+                   nrow= length(MSFT), 
+                   ncol=5, 
+                   byrow=TRUE)  # creates a matrix of prices
 
 # Variance/Covariance Matrix
 asset.names <- c("MSFT", "GWPH", "DIS", "CAT", "AMZN")
 
 # Create a list of row and col names for the var/cov matrix
-VCV <- matrix(c(cov(retTabl)), nrow=5, ncol = 5, byrow=TRUE) # create a var/cov matrix by finding cov of the assets in retTab2
-dimnames(VCV) <- list(asset.names, asset.names)  # assigns asset.names to the VCV matrix
+
+# create a var/cov matrix by finding cov of the assets in retTab2
+VCV <- matrix(c(cov(retTabl)), nrow=5, ncol = 5, byrow=TRUE)
+
+# assigns asset.names to the VCV matrix
+dimnames(VCV) <- list(asset.names, asset.names)
 
 #Calculate Returns
-rm <- matrix(colMeans(retTabl, na.rm=TRUE))  # creates an average return matrix, omitting missing values
-erm <- matrix(colMeans(EretTabl, na.rm=TRUE))  # creates an average excess return matrix, omitting missing values
-tnxy = mean((rTNX)[-1,])  # calculates the average bond yield excluding Jan (risk free rate)
+# creates an average return matrix, omitting missing values
+rm <- matrix(colMeans(retTabl, na.rm=TRUE))
+
+# creates an average excess return matrix, omitting missing values
+erm <- matrix(colMeans(EretTabl, na.rm=TRUE))
+
+# calculates the average bond yield excluding Jan (risk free rate)
+tnxy = mean((rTNX)[-1,])
 
 #Create Return Table
 retmat <- matrix(c(rm, erm), ncol=2)
 dimnames(retmat) = list(asset.names, c("Return ", "Excess Return"))
 ```
-First we want to look at the data statistics
-
+First we want to look at the summary statistics:
+  
 Instruments   | Mean Returns          | Variance of Returns | Beta (5Y Monthly)
 ---           | ---                   | ---                 | ---    
 MSFT          | `r MSFT_return_mean`  | `r MSFT_return_var` | .87
@@ -179,6 +188,7 @@ GWPH          | `r GWPH_return_mean`  | `r GWPH_return_var` | 1.96
 DIS           | `r DIS_return_mean`   | `r DIS_return_var`  | 1.08
 CAT           | `r CAT_return_mean`   | `r CAT_return_var`  | .98
 AMZN          | `r AMZN_return_mean`  | `r AMZN_return_var` | 1.3
+  
 
 Parameters of indices:
 
@@ -373,10 +383,14 @@ SDOPT <- VOPT^0.5  # calculate optimal portfolio's std dev
 SRatio <-(ROPT-tnxy)/(SDOPT)  # calculate optimal portfolio's Sharpe ratio
 
 # Create Optimal Stats Table
-PTBL <- matrix(c(ROPT, VOPT, SDOPT, SRatio), nrow = 4)  # create a matrix of return, variance, std dev, Sharpe
-optstat.names <- c("Return", "Variance", "Std Dev", "Sharpe")  # labels for PTBL matrix
+# create a matrix of return, variance, std dev, Sharpe
+PTBL <- matrix(c(ROPT, VOPT, SDOPT, SRatio), nrow = 4)
 
-dimnames(PTBL) <- list(optstat.names, "Opt. Portfolio")  # label the optimal portfolio matrix values
+# labels for PTBL matrix
+optstat.names <- c("Return", "Variance", "Std Dev", "Sharpe")
+
+# label the optimal portfolio matrix values
+dimnames(PTBL) <- list(optstat.names, "Opt. Portfolio")
 ```
 
 The optimal portfolio weights are as follow:  
@@ -405,6 +419,7 @@ getSymbols("CAT", src = "yahoo", , from = start_date1, to = end_date1)
 getSymbols("AMZN", src = "yahoo", , from = start_date1, to = end_date1)
 getSymbols("^GSPC", src = "yahoo", , from = start_date1, to = end_date1) # S&P 500
 getSymbols("^TNX", src = "yahoo", from=start_date1, to=end_date1) # TNX (10-year T-bill)
+getSymbols("GME", src = "yahoo", , from = start_date1, to = end_date1)
 
 rMSFT1 <- diff(log(to.monthly(MSFT)$MSFT.Adjusted))
 rGWPH1 <- diff(log(to.monthly(GWPH)$GWPH.Adjusted))
@@ -415,6 +430,7 @@ rGSPC1 <- diff(log(to.monthly(GSPC)$GSPC.Adjusted))
 rTNX1 <- to.monthly(TNX)$TNX.Adjusted /1200  # Using monthly rate
 rTNX1 <- rTNX1[-1,]  # remove missing data due to lagging
 mean_rTNX1 <- mean(rTNX1, na.rm=TRUE)
+rGME1 <- diff(log(to.monthly(GME)$GME.Adjusted))
 
 # Adjusted Prices
 adjMSFT1 <- MSFT$MSFT.Adjusted
@@ -524,7 +540,13 @@ f <- seq(0,.24, .24)
 CAL <- tnxy + SRatio * f
 
 #Plot the portfolio possibilities curve:
-plot(StdDev_p, Rport, col="green1", xlab="Portfolio Standard Deviation", ylab= "Portfolio Expected Return", xlim=c(0, .25), ylim= c(0, .05))
+plot(StdDev_p, 
+     Rport, 
+     col="green1", 
+     xlab="Portfolio Standard Deviation", 
+     ylab= "Portfolio Expected Return", 
+     xlim=c(0, .25), 
+     ylim= c(0, .05))
 
 #Plot of tangency point in red
 points(SDOPT, ROPT, col= "red", pch=16, bg="red")
@@ -532,8 +554,12 @@ points(SDOPT, ROPT, col= "red", pch=16, bg="red")
 #Plot of CAL in blue
 points(f, CAL, col= "blue", type="l")
 
-legend("topright",c("short sale", "TangencyPorfolio", "CAL"), cex=.8, col=c("green1", "red","blue"), 
-       lty =c(0,0,1),pch=c(1,16,16))
+legend("topright",
+       c("short sale", "TangencyPorfolio", "CAL"), 
+       cex=.8, 
+       col=c("green1", "red","blue"), 
+       lty =c(0,0,1),
+       pch=c(1,16,16))
 ```
     
 ## Estimate CAPM for your portfolio and graph the estimated $\beta$ of the CAPM and the average return of your portfolio as a point relative to SML.  
@@ -584,13 +610,21 @@ mean_X <- mean(X)
 names(X)[1] <- "Market Risk Premium"  # Rename column
 data1 <- data.frame(X, Y)
 
-plot(data1, col='red', main="Relationship Between Market & Portfolio Risk Premium", pch=20, cex=1)
+plot(data1, 
+     col='red', 
+     main="Relationship Between Market & Portfolio Risk Premium", 
+     pch=20, 
+     cex=1)
 
 # Add fit lines
 abline(lm(Y~X), col="blue")  # Regression line Y ~ X
 lines(lowess(X,Y), col="black", lty=2)  # Lowess line (X,Y)
 
-legend("bottomleft",c("Linear fit line", "Lowess line"), cex=.8, col=c("blue", "black"), lty=1:2)
+legend("bottomleft",
+       c("Linear fit line", "Lowess line"), 
+       cex=.8, 
+       col=c("blue", "black"), 
+       lty=1:2)
 ```
   
 Through inspection, we observe the cluster observation scattering in a big range from left to right. This implies a weak linear relationship between the Market Portfolio Risk Premium (the independent $X$ variable on the x-axis) and the CAPM Portfolio Risk Premium (the dependent $Y$ variable on the y-axis).  
@@ -632,7 +666,14 @@ SML <- function(beta) mean_rTNX1 + slope_SML * beta
 
 # Plot the SML
 beta <- seq(-.5, 1.5)
-plot(beta, SML(beta), col="red", type="l", main="CAPM portfolio beta relative to the Security Market Line", xlab="beta", ylab="Returns", ylim=c(-.01, .04))
+plot(beta, 
+     SML(beta), 
+     col="red", 
+     type="l", 
+     main="CAPM portfolio beta relative to the Security Market Line", 
+     xlab="beta", 
+     ylab="Returns", 
+     ylim=c(-.01, .04))
 
 # Plot the expected returns
 points(-.34504, -.34504*mean_X, col="blue", pch=16)
@@ -640,8 +681,12 @@ points(-.34504, -.34504*mean_X, col="blue", pch=16)
 # Plot the average returns
 points(-.34504, Y_bar, col="green", pch=16)
 
-legend("bottomright",c("SML", "Expected Returns", "Mean Actual Returns"), cex=.8, 
-       col=c("red", "blue", "green"), lty=c(1,0,0), pch=c(0,16,16))
+legend("bottomright",
+       c("SML", "Expected Returns", "Mean Actual Returns"), 
+       cex=.8, 
+       col=c("red", "blue", "green"), 
+       lty=c(1,0,0), 
+       pch=c(0,16,16))
 ```
   
 The Security Market Line pass through the point $(0, \overline {R_f})$ and $(1, \overline X)$, which are $(0, `r mean_rTNX1`)$ and $(1, `r mean_X`)$.   
@@ -714,7 +759,11 @@ We look at the 3-period ahead forecasted value.
 fit1 <- ses(rHoldings, alpha=.2, initial="simple", h=3)
 fit2 <- ses(rHoldings, alpha=.6, initial="simple", h=3)
 #fit3 <- ses(rHoldings, h=3)
-plot(fit1, main="Simple Exponential Smoothing of Portfolio Returns", fcol="white", type="o")
+plot(fit1, 
+     main="Simple Exponential Smoothing of Portfolio Returns", 
+     fcol="white", 
+     type="o")
+
 lines(fitted(fit1), col="blue", type="o")
 lines(fitted(fit2), col="red", type="o")
 #lines(fitted(fit3), col="green", type="o")
@@ -723,7 +772,8 @@ lines(fit2$mean, col="red", type="o")
 
 #lines(fit3$mean, col="green", type="o")
 legend("topleft",lty=1, col=c(1,"blue","red"), 
-       c("data", expression(alpha == 0.2), expression(alpha == 0.6)),pch=1)
+       c("data", expression(alpha == 0.2), expression(alpha == 0.6)),
+       pch=1)
 ```
   
 With $\alpha = .2$:
@@ -744,8 +794,15 @@ accuracy(fit2)
   
 ```{r}
 #Holt Trend Model
-holt1 <- holt(ra, alpha=0.8, beta=0.2, initial="simple", h=3) 
-plot(holt1, main="Holt Exponential Smoothing, Portfolio Holdings", fcol="white", type="o")
+holt1 <- holt(ra, 
+              alpha=0.8, 
+              beta=0.2, 
+              initial="simple", 
+              h=3) 
+plot(holt1, 
+     main="Holt Exponential Smoothing, Portfolio Holdings", 
+     fcol="white", 
+     type="o")
 lines(fitted(holt1), col="blue", type="o")
 ```
   
@@ -773,7 +830,9 @@ There might not be seasonality in our data to run the Holt-Winter model. The num
 
 ## 4) Start with the regression analysis and forecasting of your portfolio returns. Use the CAPM model to estimate the coefficients of the models and use them for forecasting. Do a 10-days ex-post forecasting of the portfolio risk premiums and compare the forecasted value to actual ones. Do a three-period-ahead (ex-ante) forecasting of the portfolio risk premiums and write confidence intervals.  
   
-### Regression of Market Risk Premium and Portfolio Risk Premium  
+### CAPM  
+
+#### Regression of Market Risk Premium and Portfolio Risk Premium  
 
 First we run the linear regression and examine its result.    
 
@@ -789,16 +848,24 @@ confint(reg)
 We can visual the result as follow:
 
 ```{r}
-plot(data1, col='red', main="Relationship Between Market & Portfolio Risk Premium", pch=20, cex=1)
+plot(data1, 
+     col='red', 
+     main="Relationship Between Market & Portfolio Risk Premium", 
+     pch=20, 
+     cex=1)
 
 # Add fit lines
 abline(reg, col="blue")  # Regression line Y ~ X
 lines(lowess(X,Y), col="black", lty=2)  # Lowess line (X,Y)
 
-legend("bottomleft",c("Linear fit line", "Lowess line"), cex=.8, col=c("blue", "black"), lty=1:2)
+legend("bottomleft", 
+       c("Linear fit line", "Lowess line"), 
+       cex=.8, 
+       col=c("blue", "black"), 
+       lty=1:2)
 ```
   
-### Ex-post Forecasting  
+#### Ex-post Forecasting  
   
 For ex-post forecasting, since our data is monthly portfolio returns with 20 observations, it makes more sense to do split the data on a 5 months ex-post forecasting instead of 10 days as recommended by the guide. Splitting the data:  
 
@@ -841,7 +908,7 @@ We have the 95% confidence intervals for our forecast as follow:
   \end{split}
 \end{equation}
 
-### Ex-ante Forecasting  
+#### Ex-ante Forecasting  
   
 Running the regression:
 
@@ -853,7 +920,9 @@ summary(regExAnte)
 Perform a three-period-ahead ex-ante forecast of portfolio holdings returns:  
   
 ```{r}
-predExAnte <- forecast::forecast(regExAnte, newdata=data.frame(Market.Risk.Premium=c(0.021584390, -0.011891042, 0.098150254)))
+predExAnte <- forecast::forecast(regExAnte,
+                                 newdata=data.frame(
+                                   Market.Risk.Premium=c(-3.63, -2.1, 12.47)))
 predExAnte
 ```
   
@@ -874,7 +943,124 @@ We have the 95% confidence interval for our forecast as follow:
   \end{split}
 \end{equation}
   
+### Fama-French 3 factor  
 
+#### Regression of Market Risk Premium and Portfolio Risk Premium  
+
+First we run the linear regression and examine its result.    
+
+```{r}
+# Recall Y is the portfolio risk premium from January 2019 to August 2020
+# as calculated above.
+# Likewise, rTNX1 is the risk free rate for the same period.
+
+# SMB Factors from Kenneth French website
+factorsSMB <- c(2.89, 2.12, -3.05, -1.75, -1.18, 0.22,
+                -2.08, -2.4, -1.05, 0.24, 0.91, 0.67,
+                -3.08, 1.02, -5.03, 2.75, 2.49, 2.71,
+                -2.18, -0.25)
+
+factorsHML <- c(-0.46, -2.71, -4.19, 2.02, -2.28, -0.79,
+                0.34, -4.85, 6.77, -1.88, -2.05, 1.91,
+                -6.27, -3.92, -13.96, -1.39, -5.05, -2.35,
+                -1.39, -2.94)
+
+data2 <- cbind(data1, factorsSMB, factorsHML)
+
+rgrFF <- lm(Portfolio.Risk.Premium ~ 
+              Market.Risk.Premium + 
+              factorsSMB + 
+              factorsHML, 
+            data=data2)
+summary(rgrFF)
+confint(rgrFF)
+```
+  
+
+#### Ex-post Forecasting  
+  
+For ex-post forecasting, since our data is monthly portfolio returns with 20 observations, it makes more sense to do split the data on a 5 months ex-post forecasting instead of 10 days as recommended by the guide. Splitting the data:  
+
+```{r}
+data2_1 <- data2[1:15,]
+data2_2 <- data2[16:20,]
+```
+  
+Running regression on the $data1_1$:  
+
+```{r}
+regExPostFF <- lm(Portfolio.Risk.Premium ~ Market.Risk.Premium + 
+                    factorsSMB + 
+                    factorsHML, 
+                  data=data2_1)
+summary(regExPostFF)
+```
+  
+Doing the Ex-Post Forecasting:  
+
+```{r}
+predExPostFF <- predict(regExPostFF, newdata=data2_2, se.fit=TRUE)
+predExPostFF
+```
+  
+Plotting the results:  
+  
+```{r}
+plot(data2_2$Portfolio.Risk.Premium, type="l", col="red")
+lines(regExPostFF$fitted.values, col="blue")
+```
+  
+We have the 95% confidence intervals for our forecast as follow:  
+
+\begin{equation}
+  \begin{split}
+    \hat{Y}_t \pm& 1.96 \hat{\sigma}_{\epsilon}  \\
+    -0.05851749 \pm& 1.96 * 0.06996845  \\
+    -0.05257046  \pm& 1.96 * 0.06996845  \\  
+    -0.03687316 \pm& 1.96 * 0.06996845   \\ 
+    0.02795319 \pm& 1.96 * 0.06996845  \\
+    -0.01052686  \pm& 1.96 * 0.06996845  \\
+  \end{split}
+\end{equation}
+
+#### Ex-ante Forecasting  
+  
+Running the regression:
+
+```{r}
+regExAnteFF <- lm(Portfolio.Risk.Premium ~ 
+                    Market.Risk.Premium + 
+                    factorsSMB + 
+                    factorsHML, 
+                  data=data2)
+summary(regExAnteFF)
+```
+  
+Perform a three-period-ahead ex-ante forecast of portfolio holdings returns:  
+  
+```{r}
+# Data from Kenneth French Website, period Sep 2020 - Nov 2020
+predExAnteFF <- forecast::forecast(regExAnteFF, 
+                                   newdata=data.frame(
+                                     Market.Risk.Premium=c(-3.63, -2.1, 12.47),
+                                     factorsSMB=c(.06, 4.44, 5.48), 
+                                     factorsHML=c(-2.51, 4.03, 2.11)))
+predExAnteFF
+```
+  
+  
+We have the 95% confidence interval for our forecast as follow:  
+
+\begin{equation}
+  \begin{split}
+    \hat{Y}_t \pm& 1.96 \hat{\sigma}_{\epsilon}  \\
+    0.19363855 \pm& 1.96 * 0.07488  \\
+    0.08185634 \pm& 1.96 * 0.07488  \\  
+    -0.61181490	 \pm& 1.96 * 0.07488  \\ 
+  \end{split}
+\end{equation}
+  
+  
 ## 5) Do an ARIMA model of your portfolio returns and use it for three-period ahead forecasting of the returns to portfolio. Write confidence interval. Estimate the accuracy statistics.  
   
 Review the ACF plot for portfolio holding monthly returns:  
@@ -960,22 +1146,114 @@ We have the F-stat:
 We notice a relative small F-stat, i.e. the differences in variances of two models are fairly insignificant, i.e. the coefficients of the ARIMA model are stable.  
   
 ## 7) Test your ARIMA model for the existence of ARCH and GARCH and do proper corrections, if needed.  
+  
+To test our ARIMA model for the existence of ARCH and GARCH we apply an ARIMA model for the residual of the the previous ARIMA model. If it's $ARMA(1,1)$ then there's a GARCH component. If it's $AR(1)$ then there's an ARCH component.
+  
+
+```{r}
+residualsSq_fitAutoARIMA <- fitAutoARIMA$residuals
+
+auto.arima(residualsSq_fitAutoARIMA)
+```
+  
+We cab observe an $ARIMA(0,0,0)$ model which implies there are no ARCH or GARCH components.
+  
+
+## 8) Find different time-series measures of volatility for your portfolio returns (see the volatility file posted on Blackboard) and do a three-period ahead forecasting of the portfolio volatility. Compare the different measures of volatility with GARCH.  
+
+### Time-Series Volatility using $r^2$  
+
+One measure of historical volatility is the square of returns.  
+
+```{r}
+r2Vol <- rHoldings^2
+r2Vol
+```
+  
+Doing a forecast by applying ARIMA and predict:
+
+```{r}
+r2autoARIMA <- auto.arima(r2Vol)
+r2autoARIMA
+
+pred_r2autoARIMA <- forecast::forecast(r2autoARIMA, h=3)
+pred_r2autoARIMA
+plot(pred_r2autoARIMA)
+```
+  
+### Time-Series Volatility using $\ln{\frac{H}{L}}$  
+  
+Since we only track closing price of the portfolio holdings, we do not have high/low data to calculate using this method.  
+
+### ARCH and GARCH model  
 
 ```{r}
 library(rugarch)
-
 #Write Specification of Your GARCH Model using "sGrach" or standard GARCH Mode.
-garch1 <- ugarchspec(variance.model=list(model="sGARCH", garchOrder=c(1, 1)), mean.model=list(armaOrder=c(1, 1)), distribution.model="std")
+garch1 <- ugarchspec(variance.model=list(model="sGARCH", 
+                                         garchOrder=c(1, 1)), 
+                     mean.model=list(armaOrder=c(1, 1)), 
+                     distribution.model="std")
 #Fit the Model to Data
 rHoldings_garch1 <- ugarchfit(spec=garch1, data=rHoldings)
 rHoldings_garch1
 ```
-
-## 8) Find different time-series measures of volatility for your portfolio returns (see the volatility file posted on Blackboard) and do a three-period ahead forecasting of the portfolio volatility. Compare the different measures of volatility with GARCH.  
+  
+We can see that there is not enough obsevations to fit an ARCH and GARCH model and forecast using monthly portfolio holdings returns.
+  
   
 ## 9) Use the accuracy statistics of the different forecasting techniques to decide which technique fits the data best.  
+
+As above, we only have data and forecast for an $r^2$ time-series of volatility. Examining its accuracy statistics:
+  
+```{r}
+accuracy(pred_r2autoARIMA)
+```
+  
+Notice that $MAPE > 100\%$, meaning the errors are much greater than the actual value. However, MAPE does have many pitfalls as error measure. We see ACF1 have good forecasting statistics.
+  
   
 ## 10) Test whether your portfolio index conforms to the efficient market hypothesis.  
+  
+**Efficient Market Hypothesis Compliant: Is the variable behaving as a Random Walk**
+  
+\begin{equation}
+  \begin{split}
+    Y_t =& \alpha_0 + \alpha_1 Y_{t-1} + \epsilon_t  \\
+  \end{split}
+\end{equation}
+
+To comply with EMH, $\alpha_0$ should be 0 and $\alpha_1$ should be 1.
+  
+Since we cannot directly test the hypothesis of the coefficient being equal 1, we modify our model as follow:  
+
+\begin{equation}
+  \begin{split}
+    D(Y_t) =& \alpha_0 + (\alpha_1 - 1) Y_{t-1} + \epsilon_t  \\
+  \end{split}
+\end{equation}
+  
+```{r}
+# D(Y_t) for portfolio holdings index
+Dholdings <- diff(holdings[,1])
+
+# Y_{t-1} for portfolio holdings index
+tMinus1holdings <- holdings[-1,1]
+
+# Create a dataframe
+rgrRW <- data.frame(tMinus1holdings, Dholdings)
+rgrRW
+```
+  
+Running the regression:  
+
+```{r}
+rgrRWFit <- lm(Dholdings~tMinus1holdings)
+summary(rgrRWFit)
+```
+  
+We can that both the intercept $\alpha_0$ and the coefficient $\alpha_1$ are significant, i.e. we reject the null hypothesis $\alpha_0=0$ for the intercept and reject the null hypothesis $\alpha_1 - 1 = 0$. Therefore, $alpha_0 \neq 0$ and $\alpha_1 \neq 1$, so the monthly portfolio index does not comply with the Efficient Market Hypothesis.
+  
   
 ## 11) Find 1% and 3% daily and monthly VaR of your portfolio.  
   
@@ -1050,12 +1328,82 @@ Likewise, the 3% monthly EVaR is $`r RAP*VaR_1mo_p_3percent`$. The 3% daily VaR 
   
 ## 13) Graph the security Market Line (SML) of your portfolio and test whether you would add a stock of your own choice to the portfolio or not.  
   
+### Graphing the Security Market Line  
+
+Recall the summary statistics:
+  
+Instruments   | Mean Returns          | Variance of Returns | Beta (5Y Monthly)
+---           | ---                   | ---                 | ---    
+MSFT          | `r MSFT_return_mean`  | `r MSFT_return_var` | .87
+GWPH          | `r GWPH_return_mean`  | `r GWPH_return_var` | 1.96
+DIS           | `r DIS_return_mean`   | `r DIS_return_var`  | 1.08
+CAT           | `r CAT_return_mean`   | `r CAT_return_var`  | .98
+AMZN          | `r AMZN_return_mean`  | `r AMZN_return_var` | 1.3
+  
+Recall the Security Market Line equation:
+
+\begin{equation}
+  \begin{split}
+    \overline{r} =& \alpha_0 + \alpha_1 \beta  \\
+  \end{split}
+\end{equation}
+
+Estimate the SML equation:  
+  
+```{r}
+betaVector <- c(.87, 1.96, 1.08, .98, 1.3)
+rMeanVector <- c(MSFT_return_mean, 
+                 GWPH_return_mean, 
+                 DIS_return_mean, 
+                 CAT_return_mean, 
+                 AMZN_return_mean)
+
+rgrSML <- lm(rMeanVector~betaVector)
+summary(rgrSML)
+```
+  
+We have the SML equation as $\overline{r} = .01582 + .00187 \beta$.  
+  
+Plotting:  
+
+```{r}
+ySML <- function(betaSML) .01582 + .00187*betaSML
+plot(ySML, main="Security Market Line of Portfolio Holdings")
+```
+  
+### Test whether you would add a stock of your own choice:  
+  
+Recall that the condition to include a stock to the portfolio is iff: 
+  
+\begin{equation}
+  \begin{split}
+    \frac{E[R_p - r_f]}{\beta_{portfolio}} <& \frac{E[r_{stock} - r_f]}{\beta_{stock}}  \\
+  \end{split}
+\end{equation}
+  
+Recall the beta of the portfolio from question 2 $\beta_{portfolio} = 1.07468$. We will test whether we would include the security GME (underlying of the company GameStop), which has a 5Y Monthly Beta of $-1.82$ to our portfolio
+
+```{r}
+betaHoldings <- 1.07468
+betaGME <- 1.82
+
+ratioPortfolio <- (mean(rHoldings) - mean(rTNX1)) / betaHoldings
+ratioPortfolio
+
+ratioGME1 <- (mean(rGME1[-1,]) - mean(rTNX1)) / betaGME
+ratioGME1
+```
+  
+We can observe that $\frac{E[R_p - r_f]}{\beta_{portfolio}} = `r ratioPortfolio` > `r ratioGME1` =  \frac{E[r_{GME} - r_f]}{\beta_{GME}}$. Thus, we would not add GME to our portfolio holdings.  
+  
 ## 14) Do an intervention function analysis of the March 15th closing of US economy due to COVID19. Did the event have any effect on return to your portfolio.  
   
 Observing the holdings data:
 
 ```{r}
-ggtsdisplay(holdings, main="Portfolio Holdings Daily Closing Price", plot.type="scatter")
+ggtsdisplay(holdings, 
+            main="Portfolio Holdings Daily Closing Price", 
+            plot.type="scatter")
 ```
   
 Dividing the data into two periods, before and after the COVID-19 lockdown. The last trading day before lockdown was March 13, 2020.  
@@ -1115,7 +1463,12 @@ summary(var)
 Run Impulse Response Function:  
 
 ```{r}
-IRF <- irf(var, impulse.variable = 2, response.variable = 1,  t = NULL, nhor = 20, scenario = 2, draw.plot = TRUE)
+IRF <- irf(var, 
+           impulse.variable = 2, 
+           response.variable = 1,  
+           t = NULL, nhor = 20, 
+           scenario = 2, 
+           draw.plot = TRUE)
 IRF
 ```
   
@@ -1129,6 +1482,7 @@ We can observe that the $\lambda$ coefficient of the dummy is statistically sign
   
 ## 15) Do a 2-variable VAR between your portfolio index and S&P500 index. Graph the Impulse response function of the VAR and comment on the relationship.  
 
+  
 We run VAR model to estimate the effect of lockdown on the time path of the adjustment:
 
 ```{r}
@@ -1140,7 +1494,12 @@ summary(var_holdingsGSPC)
 Run Impulse Response Function:  
 
 ```{r}
-IRF_holdingsGSPC <- irf(var_holdingsGSPC, impulse.variable = 2, response.variable = 1,  t = NULL, nhor = 20, scenario = 2, draw.plot = TRUE)
+IRF_holdingsGSPC <- irf(var_holdingsGSPC, 
+                        impulse.variable = 2, 
+                        response.variable = 1,  
+                        t = NULL, nhor = 20, 
+                        scenario = 2, 
+                        draw.plot = TRUE)
 IRF_holdingsGSPC
 ```
   
@@ -1151,6 +1510,8 @@ plot(IRF_holdingsGSPC)
 ```
   
 We can observe that the $\lambda$ coefficient of the S&P 500 is significant, meaning that the movement of S&P 500 has an effect on the movement of the portfolio holdings.  
+  
+
 # Citations
 
 “Amazon.com, Inc. (AMZN) Stock Price, News, Quote &amp; History.” Yahoo! Finance, Yahoo!, 14 Nov. 2020, ca.finance.yahoo.com/quote/amzn/?p=amzn.
