@@ -1,9 +1,10 @@
 ---
-title: "Formula Sheet - Final Exam"
+title: "Study Guide - Final Exam"
 author: "Jeff Nguyen"
 date: "April 28, 2021"
 output:
-  pdf_document: default
+  pdf_document:
+    extra_dependencies: ["dsfont"]
   html_document: default
   word_document: default
 ---
@@ -84,19 +85,203 @@ Volatility clustering property of financial data describes the current level of 
 \end{equation}
   
 Note that most of the time, only 2 or 3 lags are used instead of 4.  
+
+The 2 most popular models are ARCH(1)--AR(1)--and GARCH(1)--Generalized ARCH(1), i.e. ARMA(1,1).  
   
-**ARCH(1) Model:**  
+### **ARCH(1) Model:**  
   
 These 2 equations are estimated simultaneously:  
 
 \begin{equation}
   \begin{split}
-    Y_t =& \alpha_0 + \alpha_1 Y_{t-1} + \epsilon_t \\
+    Y_t =& \gamma_0 + \gamma_1 Y_{t-1} + \epsilon_t \\
     \epsilon^2_t =& a_0 + a_1 \epsilon^2_{t-1}  \\
+    \text{where}&  \\
+    \gamma_1 =& \, \text{duration of volatility}  \\ 
+    a_1 =& \, \text{magnitutde of volatility}  \\
   \end{split}
 \end{equation}
+  
+Estimations:  
+
+\begin{equation}
+  \begin{split}
+    \text{Conditional Mean of Y at t+1:}&  \\
+    \mathds{E}[Y_{t+1} | Y_t, Y_{t-1}, ...] =& \hat{\gamma_0} + \hat{\gamma_1} Y_t  \\
+    \\
+    \text{Unconditional Mean of Y:}&  \\
+    Y_{LR} =& \mathds{E}[Y]  \\
+           =& \frac{\hat{\gamma_0}}{1 - \hat{\gamma_1}}  \\
+    \\
+    \text{Conditional Variance of } \epsilon \, \text{at time t:}&  \\
+    \mathds{E}[\epsilon^2_{t+1} | \epsilon_t, \epsilon_{t-1}, ...] =& \hat{a_0} + \hat{a_1} \epsilon^2_t  \\
+    \\
+    \text{Unconditional Variance of } \epsilon \, \text{:}& \\
+    \epsilon_{LR} =& \mathds{E}[\epsilon^2]  \\
+                  =& \sigma^2_{\epsilon}  \\
+                  =& \frac{\hat{a_0}}{1 - \hat{a_1}}  \\
+    \\
+    \text{Unconditional Variance of } Y \, \text{:}&  \\
+    Var[Y_{LR}] =& \frac{\mathds{E}[\epsilon^2_t]}{1 - \gamma_1^2}  \\
+                =& \frac{\sigma^2_{\epsilon}}{1 - \gamma_1^2}  \\
+                =& \frac{\hat{a_0}}{1 - \hat{a_1}} . \frac{1}{1 - \hat{\gamma_1^2}}  \\
+  \end{split}
+\end{equation}
+  
+The equation, $Var[Y_{LR}] = \frac{\hat{a_0}}{1 - \hat{a_1}} . \frac{1}{1 - \hat{\gamma_1^2}}$, shows the mean reverting property of the variance in the long run. This means in the long-run, volatility is a constant.   
+  
+#### **Interesting conclusions of the ARCH(1) model:**  
+- $Var[Y]$ increases both with $\gamma_1$ and $a_1$.  
+- $Var[Y_{LR}]$ is a constant, consistent with mean reverting property of the variance of financial data.  
+- Conditional variance of Y $Var[Y]$ changes with lagged values of $\epsilon_t$.  
+- $\gamma_1$ decides the duration and $a_1$ decides the magnitude of volatility.  
+  
+#### **Numerical Example:**  
+
+```{r}
+# First ARCH(1) Equation
+## y_t = gamma_0 + gamma_1 y_tMinus1 + epsilon_t
+gamma_0 = 10
+gamma_1 = 0.6
+y_tFunc <- function(y_tMinus1) gamma_0 + gamma_1*y_tMinus1
+
+## Given parameters
+y_t = 5
+sigmaSq_epsilon = 9
+
+# Second ARCH(1) Equation
+## epsilon_t^2 = a_0 + a_1 * epsilon_tMinus1^2
+a_0 = 3
+a_1 = .4
+epsilonSq_tFunc <- function(epsilonSq_tMinus1) a_0 + a_1*epsilonSq_tMinus1
+
+## Given parameters
+e_t = 1.1
+
+# Mean Y
+y_tPlus1 <- y_tFunc(y_t)
+y_tPlus2 <- y_tFunc(y_tPlus1)
+y_tPlus3 <- y_tFunc(y_tPlus2)
+y_LR <- gamma_0 / (1-gamma_1)
+
+# Variance epsilon
+epsilonSq_tPlus1 <- epsilonSq_tFunc(sigmaSq_epsilon)
+epsilonSq_tPlus2 <- epsilonSq_tFunc(epsilonSq_tPlus1)
+epsilonSq_tPlus3 <- epsilonSq_tFunc(epsilonSq_tPlus2)
+epsilonSq_LR <- a_0 / (1 - a_1)
+
+# Variance Y
+var_y_tPlus1 <- epsilonSq_tPlus1
+var_y_tPlus2 <-(1+gamma_1^2) * epsilonSq_tPlus2
+var_y_tPlus3 <- (1+gamma_1^2+gamma_1^4) * epsilonSq_tPlus3
+var_y_LR <- sigmaSq_epsilon / (1-gamma_1^2)
+var_y_meanReverting <- (a_0/(1-a_1))*(1/(1-gamma_1^2))
+```
+  
+
+| Var Desc                                           | Forecast Var                                                                                         | 95% Confidence Interval                                                                                                                                               |
+|----------------------------------------------------|------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Conditional Mean $E[Y_{t+1} |\Omega]$              | $E[Y_{t+1}|\Omega] = `r gamma_0` + `r gamma_1` Y_{t} = `r y_tPlus1`$                                | $E[Y_{t+1}|\Omega] \pm 1.96 \sqrt{Var[Y_{t+1}|\Omega]} = `r y_tPlus1` \pm 1.96 \sqrt{`r var_y_tPlus1`}$                                                           |
+| Conditional Mean $E[Y_{t+2}|\Omega]$              | $E[Y_{t+2}|\Omega] = `r gamma_0` + `r gamma_1` Y_{t+1} = `r y_tPlus2`$                              | $E[Y_{t+2}|\Omega] \pm 1.96 \sqrt{Var[Y_{t+2}|\Omega]} = `r y_tPlus2` \pm 1.96 \sqrt{`r var_y_tPlus2`}$                           |
+| Conditional Mean $E[Y_{t+3}|\Omega]$              | $E[Y_{t+3}|\Omega] = `r gamma_0` + `r gamma_1` Y_{t+2} = `r y_tPlus3`$                              | $E[Y_{t+2}|\Omega] \pm 1.96 \sqrt{Var[Y_{t+3}|\Omega]} = `r y_tPlus2` \pm 1.96 \sqrt{`r var_y_tPlus3`}$  |
+| Unconditional Mean $Y_{LR}$                        | $Y_{LR} = \frac{\gamma_0}{1 - \gamma_1}$ = `r y_LR`                                                  | $Y_{LR} \pm 1.96 \sqrt{Var[Y_{LR}]} = `r y_LR` \pm 1.96 \sqrt{`r var_y_LR`}$                            |
+| Conditional Variance $Var[Y_{t+1}|\Omega]$        | $Var[Y_{t+1}|\Omega] = E[\epsilon_{t+1}^2\|\Omega] = `r var_y_tPlus1`$                              |                                                                                                                                                                       |
+| Conditional Variance $Var[Y_{t+2}|\Omega]$        | $Var[Y_{t+2}|\Omega] = (1+\gamma_1^2) E[\epsilon_{t+2}^2\|\Omega] = `r var_y_tPlus2`$               |                                                                                                                                                                       |
+| Conditional Variance $Var[Y_{t+3}|\Omega]$          | $Var[Y_{t+3}|\Omega] = (1+\gamma_1^2+\gamma_1^4) E[\epsilon_{t+3}^2\|\Omega] = `r var_y_tPlus3`$      |                                                                                                                                                                       |
+| Unconditional Variance $Var[Y_{LR}]$               | $Var[Y_{LR}] = \frac{\sigma_{\epsilon}^2}{1-\gamma_1^2} = `r var_y_LR`$                              |                                                                                                                                                                       |
+| Conditional Variance $E[\epsilon_{t+1}^2|\Omega]$ | $E[\epsilon_{t+1}^2|\Omega] = `r a_0` + `r a_1` \sigma^2_{\epsilon} = `r epsilonSq_tPlus1`$         |                                                                                                                                                                       |
+| Conditional Variance $E[\epsilon_{t+2}^2|\Omega]$ | $E[\epsilon_{t+2}^2|\Omega] = `r a_0` + `r a_1` E[\epsilon_{t+1}^2|\Omega] = `r epsilonSq_tPlus2`$ |                                                                                                                                                                       |
+| Conditional Variance $E[\epsilon_{t+3}^2|\Omega]$ | $E[\epsilon_{t+3}^2|\Omega] = `r a_0` + `r a_1` E[\epsilon_{t+1}^2|\Omega] = `r epsilonSq_tPlus3`$ |                                                                                                                                                                       |
 
   
+### **GARCH(1,1) Model:**  
+  
+\begin{equation}
+  \begin{split}
+    \sigma^2_{\epsilon t} =& \alpha_0 + \alpha_1 \epsilon^2_{t-1} + \beta \sigma^2_{\epsilon t - 1}  \\
+    \text{where}&  \\
+    \epsilon^2_t =& \sigma^2_{\epsilon t} + e_t  \\
+    \\
+    \text{substituting this to the original model} &  \\
+    \sigma^2_{\epsilon t} =& \alpha_0 + \alpha_1 \epsilon^2_{t-1} + \beta \sigma^2_{\epsilon t - 1}  \\
+    \epsilon^2_t - e_t =& \alpha_0 + \alpha_1 \epsilon^2_{t-1} + \beta \sigma^2_{\epsilon t - 1}  \\
+    \epsilon^2_t - e_t =& \alpha_0 + \alpha_1 \epsilon^2_{t-1} + \beta (\epsilon^2_{t-1} - e_{t-1})  \\
+    \epsilon^2_t =& \alpha_0 + (\alpha_1 + \beta) \epsilon^2_{t-1} + e_t - \beta e_{t-1}  \\
+  \end{split}
+\end{equation}
+  
+GARCH(1) is an ARMA(1,1) model in variance.
+  
+**GARCH vs ARMA:** ARMA models the levels of a time series, GARCH models the variance of a time series. GARCH models are used for the error variance of a time series. GARCH model can be combine with ARMA processes. The ARMA models assume constant conditional variance. However, not all time series processes have constant variance. For example, in modeling stock returns, if the observed returns today are usually volatile, we might expect the returns tomorrow to also be more volatile than usual. An ARMA model, with constant conditional variance, cannot capture this behavior.
+  
+**Strengths and Weaknesses of GARCH: ** GARCH is more flexible than ARCH, as it can describe the volatility with fewer parameters. However, the baseline GARCH is characterized by a symmetric response of current volatility to positive and negative values of the lagged error $\epsilon_{t-1}$. It is common for the future volatility of financial time series to be much more affected by negative values of $\epsilon_{t-1}$ than positive ones. This assymmetry is not captured by the GARCH model.
+
+# Intervention Function Analysis  
+  
+## Objective  
+
+Intervention Function Analysis is a statistical methodology to test the effect a shock to a time series variable. The objective of the test is to find whether the post-shock mean and variance of a time series has changed due to shock or not. If the test concludes that the pre-shock mean is different from the post-shock mean, the methodology then can measure the long-run effect of the shock on the variable as well as the time path of the adjustment of the variable to the shock using impulse response function.
+
+## Traditional Way of Conducting the Test  
+
+The conventional method is to compare the mean and variance of the variable before and after the shock and then test for statistical significance of the change using z and F tests.  
+
+\begin{equation}
+  \begin{split}
+    &H_0: \mu_1 = \mu_2  \\
+    &H_a: \mu_1 \neq \mu_2  \\
+    Z =& \frac{\overline{X_1} - \overline{X_2}}{\sqrt{\frac{\sigma_1^2}{n_1} + \frac{\sigma_2^2}{n_2}}}  \\
+    \\
+    &H_0: \sigma_1^2 = \sigma_2^2  \\
+    &H_a: \sigma_1^2 \neq \sigma_2^2  \\
+    F =& \frac{S_1^2}{S_2^2}  \\
+  \end{split}
+\end{equation}
+    
+The conventional method is inappropriate in time-series analysis because of serial correlation nature of financial data and some of the effects of the pre-shock period may "carry over" to the next period. This makes any statistical inference based on conventional method of comparing means and variances biased.  
+  
+To include such "carry over" effects, the mean values of two different periods are compared using the Intervention Function Analysis. Intervention Function Analysis allows for a formal test of a change in the mean of a variable with time series characteristic.  
+  
+## Methodology:  
+  
+Intervention Function Analysis requires running the best fitting ARIMA on the variable for the longest span of data before or after intervention (whichever is longer), to find the order of the ARIMA, and then running the same order of ARIMA for the entire period by including the intervention variable and testing for the significance of the coefficient of the intervention variable.  
+
+## The Model:  
+  
+First, use the whole span of data to estimate AR(1) model including impulse dummy which will have a value of 1 at time $\tau$ and 0 elsewhere.
+
+\begin{equation}
+  \begin{split}
+    Y_t =& \alpha_0 + \alpha_1 Y_{t-1} + \lambda Z_t + \epsilon_t  \\
+  \end{split}
+\end{equation}
+  
+If $\lambda$ is statistically significant, then intervention has changed the mean. If not, intervention did not have any effect on $Y_t$.  
+
+```{r}
+# Given Y_t = 20 + .5 Y_tMinus1 -2.5Z
+alpha_0 <- 20
+alpha_1 <- .5
+lambda <- -2.5
+```
+
+| Day | Immediate Effect                            | Cumulative Effect                                                        |
+|-----|---------------------------------------------|--------------------------------------------------------------------------|
+| 0   | $\lambda = `r lambda`$                      | $\lambda = `r lambda`$                                               |
+| 1   | $\lambda \alpha_1 = `r lambda*alpha_1`$ | $\lambda (1+\alpha_1) = `r lambda*(1+alpha_1^1)`$                      |
+| 2   | $\lambda \alpha_1^2 = `r lambda*alpha_1^2`$ | $\lambda (1+\alpha_1+\alpha_1^2) = `r lambda*(1+alpha_1+alpha_1^2)`$ |
+
+  
+
+| Statistics            | Value                                                                       |
+|-----------------------|-----------------------------------------------------------------------------|
+| LR effect of shock    | $\frac{\lambda}{1 - \alpha_1} = `r lambda/(1-alpha_1)`$                     |
+| LR effect of no shock | $\frac{\alpha_0}{1 - \alpha_1} = `r alpha_0/(1-alpha_1)`$                   |
+| LR cumulative effect  | $\frac{\lambda + \alpha_0}{1 - \alpha_1} = `r (lambda+alpha_0)/(1-alpha_1)`$ |
+  
+To interpret the Orthogonal Impulse Response graph: if there is fluctuation after the shock, then the shock is significant.
+  
+
 # Reading ACF and PACF  
 
 ## Non-stationary: 
