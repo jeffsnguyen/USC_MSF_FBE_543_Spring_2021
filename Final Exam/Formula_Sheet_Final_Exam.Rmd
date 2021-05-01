@@ -137,7 +137,10 @@ The equation, $Var[Y_{LR}] = \frac{\hat{a_0}}{1 - \hat{a_1}} . \frac{1}{1 - \hat
 - $\gamma_1$ decides the duration and $a_1$ decides the magnitude of volatility.  
   
 #### **Numerical Example:**  
-
+  
+  
+Calculations:
+    
 ```{r}
 # First ARCH(1) Equation
 ## y_t = gamma_0 + gamma_1 y_tMinus1 + epsilon_t
@@ -178,6 +181,24 @@ var_y_LR <- sigmaSq_epsilon / (1-gamma_1^2)
 var_y_meanReverting <- (a_0/(1-a_1))*(1/(1-gamma_1^2))
 ```
   
+  
+Given ARCH(1) model:
+  
+
+\begin{equation}
+  \begin{aligned}
+    \left\{
+      \begin{matrix}
+        \begin{aligned}
+          &Y_t = `r gamma_0` + `r gamma_1` Y_{t-1} + \epsilon_t \quad \text{,} Y_t = `r y_t` \, \text{,} \epsilon \sim iid(0,`r sigmaSq_epsilon`)  \\
+          &\epsilon_t^2 = `r a_0` + `r a_1` \epsilon_{t-1}^2  \\
+        \end{aligned}
+      \end{matrix}
+    \right.
+  \end{aligned}
+\end{equation}
+
+  
 
 | Var Desc                                           | Forecast Var                                                                                         | 95% Confidence Interval                                                                                                                                               |
 |----------------------------------------------------|------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -194,7 +215,7 @@ var_y_meanReverting <- (a_0/(1-a_1))*(1/(1-gamma_1^2))
 | Conditional Variance $Var[Y_{t+2}|\Omega]$        | $Var[Y_{t+2}|\Omega] = (1+\gamma_1^2) \mathds{E}[\epsilon_{t+2}^2\|\Omega] = `r var_y_tPlus2`$               |                                                                                                                                                                       
 | Conditional Variance $Var[Y_{t+3}|\Omega]$          | $Var[Y_{t+3}|\Omega] = (1+\gamma_1^2+\gamma_1^4) \mathds{E}[\epsilon_{t+3}^2\|\Omega] = `r var_y_tPlus3`$      |                                                                                                                                                                       
 | Unconditional Variance $Var[Y_{LR}]$               | $Var[Y_{LR}] = \frac{\sigma_{\epsilon}^2}{1-\gamma_1^2} = `r var_y_LR`$                              |                                                                                                                                                                       
-| Mean-Reverting Variance $Var[Y_{mr}]$               | $Var[Y_{mean\ reverting}] = \frac{a_0}{(1-a_1)(1-\gamma_1^2)} = `r var_y_meanReverting`$                              |                                                                                                                                                                       
+| Mean-Reverting Variance $Var[Y_{mr}]$               | $Var[Y_{mr}] = \frac{a_0}{(1-a_1)(1-\gamma_1^2)} = `r var_y_meanReverting`$                              |                                                                                                                                                                       
 | Conditional Variance $\mathds{E}[\epsilon_{t+1}^2|\Omega]$ | $\mathds{E}[\epsilon_{t+1}^2|\Omega] = `r a_0` + `r a_1` \sigma^2_{\epsilon} = `r epsilonSq_tPlus1`$         |                                                                                                                                                                       
 | Conditional Variance $\mathds{E}[\epsilon_{t+2}^2|\Omega]$ | $\mathds{E}[\epsilon_{t+2}^2|\Omega] = `r a_0` + `r a_1` \mathds{E}[\epsilon_{t+1}^2|\Omega] = `r epsilonSq_tPlus2`$ |                                                                                                                                                                       
 | Conditional Variance $\mathds{E}[\epsilon_{t+3}^2|\Omega]$ | $\mathds{E}[\epsilon_{t+3}^2|\Omega] = `r a_0` + `r a_1` \mathds{E}[\epsilon_{t+1}^2|\Omega] = `r epsilonSq_tPlus3`$ |                                                                                                                                                                       |
