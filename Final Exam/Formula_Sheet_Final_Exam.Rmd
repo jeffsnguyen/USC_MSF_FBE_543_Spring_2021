@@ -144,22 +144,22 @@ Calculations:
 ```{r}
 # First ARCH(1) Equation
 ## y_t = gamma_0 + gamma_1 y_tMinus1 + epsilon_t
-gamma_0 = 10
-gamma_1 = 0.6
+gamma_0 <- 0.4
+gamma_1 <- 0.6
 y_tFunc <- function(y_tMinus1) gamma_0 + gamma_1*y_tMinus1
 
 ## Given parameters
-y_t = 5
-sigmaSq_epsilon = 9
+y_t = 6.5
+sigmaSq_epsilon = 1.5
 
 # Second ARCH(1) Equation
 ## epsilon_t^2 = a_0 + a_1 * epsilon_tMinus1^2
-a_0 = 3
-a_1 = .4
+a_0 <- .3
+a_1 <- .25
 epsilonSq_tFunc <- function(epsilonSq_tMinus1) a_0 + a_1*epsilonSq_tMinus1
 
 ## Given parameters
-e_t = 1.1
+e_t <- 1.1
 
 # Mean Y
 y_tPlus1 <- y_tFunc(y_t)
@@ -204,7 +204,7 @@ Given ARCH(1) model:
 |----------------------------------------------------|------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Conditional Mean $\mathds{E}[Y_{t+1} |\Omega]$              | $\mathds{E}[Y_{t+1}|\Omega] = `r gamma_0` + `r gamma_1` Y_{t} = `r y_tPlus1`$                                | $\mathds{E}[Y_{t+1}|\Omega] \pm 1.96 \sqrt{Var[Y_{t+1}|\Omega]} = `r y_tPlus1` \pm 1.96 \sqrt{`r var_y_tPlus1`}$                                                           |
 | Conditional Mean $\mathds{E}[Y_{t+2}|\Omega]$              | $\mathds{E}[Y_{t+2}|\Omega] = `r gamma_0` + `r gamma_1` Y_{t+1} = `r y_tPlus2`$                              | $\mathds{E}[Y_{t+2}|\Omega] \pm 1.96 \sqrt{Var[Y_{t+2}|\Omega]} = `r y_tPlus2` \pm 1.96 \sqrt{`r var_y_tPlus2`}$                           |
-| Conditional Mean $\mathds{E}[Y_{t+3}|\Omega]$              | $\mathds{E}[Y_{t+3}|\Omega] = `r gamma_0` + `r gamma_1` Y_{t+2} = `r y_tPlus3`$                              | $\mathds{E}[Y_{t+2}|\Omega] \pm 1.96 \sqrt{Var[Y_{t+3}|\Omega]} = `r y_tPlus2` \pm 1.96 \sqrt{`r var_y_tPlus3`}$  |
+| Conditional Mean $\mathds{E}[Y_{t+3}|\Omega]$              | $\mathds{E}[Y_{t+3}|\Omega] = `r gamma_0` + `r gamma_1` Y_{t+2} = `r y_tPlus3`$                              | $\mathds{E}[Y_{t+3}|\Omega] \pm 1.96 \sqrt{Var[Y_{t+3}|\Omega]} = `r y_tPlus2` \pm 1.96 \sqrt{`r var_y_tPlus3`}$  |
 | Unconditional Mean $Y_{LR}$                        | $Y_{LR} = \frac{\gamma_0}{1 - \gamma_1}$ = `r y_LR`                                                  | $Y_{LR} \pm 1.96 \sqrt{Var[Y_{LR}]} = `r y_LR` \pm 1.96 \sqrt{`r var_y_LR`}$                            |
 
   
@@ -219,7 +219,7 @@ Given ARCH(1) model:
 | Conditional Variance $\mathds{E}[\epsilon_{t+1}^2|\Omega]$ | $\mathds{E}[\epsilon_{t+1}^2|\Omega] = `r a_0` + `r a_1` \sigma^2_{\epsilon} = `r epsilonSq_tPlus1`$         |                                                                                                                                                                       
 | Conditional Variance $\mathds{E}[\epsilon_{t+2}^2|\Omega]$ | $\mathds{E}[\epsilon_{t+2}^2|\Omega] = `r a_0` + `r a_1` \mathds{E}[\epsilon_{t+1}^2|\Omega] = `r epsilonSq_tPlus2`$ |                                                                                                                                                                       
 | Conditional Variance $\mathds{E}[\epsilon_{t+3}^2|\Omega]$ | $\mathds{E}[\epsilon_{t+3}^2|\Omega] = `r a_0` + `r a_1` \mathds{E}[\epsilon_{t+1}^2|\Omega] = `r epsilonSq_tPlus3`$ |                                                                                                                                                                       |
-
+| Unconditional Variance $Var[\epsilon_{LR}^2]$ | $Var[\epsilon_{LR}^2] = \frac{a_0}{1-a_1}  = `r epsilonSq_LR`$ |                                                                                                                                                                       |
   
 ### **GARCH(1,1) Model:**  
   
