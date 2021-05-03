@@ -3,13 +3,13 @@ title: "Spring 2021 Project"
 author: "Jeff Nguyen"
 date: "01/04/2021"
 output:
-  pdf_document: default
   html_document:
     code_folding: "hide"
+  pdf_document: default
   word_document: default
 ---
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, envir=.GlobalEnv)
+knitr::opts_chunk$set(echo = FALSE, envir=.GlobalEnv)
 ```
 
 ```{r load-packages, include=FALSE}
@@ -844,6 +844,8 @@ reg <- lm(Portfolio.Risk.Premium ~ Market.Risk.Premium, data=data1)
 summary(reg)
 confint(reg)
 ```
+  
+We notice that p-value of the intercept and the $Market.Risk.Premium$ coefficient are insignificant at 95% confidence level. This implies CAPM is a poor model to fit our data, as reflected by the poor $R^2$ statistics.  
 
 We can visual the result as follow:
 
@@ -976,6 +978,8 @@ summary(rgrFF)
 confint(rgrFF)
 ```
   
+We can observe from the result that all $p-value$ of the intercepts and the coefficients implies insignificance. This also implies the Fama French 3-factor are a poor model to fit our data, as reflected by the poor $R^2$ statistic.  
+
 
 #### Ex-post Forecasting  
   
@@ -1025,6 +1029,7 @@ We have the 95% confidence intervals for our forecast as follow:
 
 #### Ex-ante Forecasting  
   
+
 Running the regression:
 
 ```{r}
@@ -1080,6 +1085,8 @@ Perform an (A)DF Test:
 adf.test(rHoldings)
 ```
   
+We can see that $p-value$ largely implies non-stationarity.  
+
 Fitting an auto-ARIMA model:  
 
 ```{r}
@@ -1242,7 +1249,6 @@ tMinus1holdings <- holdings[-1,1]
 
 # Create a dataframe
 rgrRW <- data.frame(tMinus1holdings, Dholdings)
-rgrRW
 ```
   
 Running the regression:  
