@@ -9,7 +9,7 @@ output:
   word_document: default
 ---
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, envir=.GlobalEnv)
+knitr::opts_chunk$set(echo = TRUE, envir=.GlobalEnv)
 ```
 
 ```{r load-packages, include=FALSE}
